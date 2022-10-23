@@ -27,10 +27,13 @@ public class MergeList {
         //tra la query e la colonna
         HashMap<String, Integer> column2frequency = new HashMap<>();
         for(String element: columnElements){
-            //per ogni termine della query cerca le colonne che fanno hit
-            TopDocs docs = searcher.search(new BooleanQuery.Builder()
+            //per ogni termine della query cerca tutt le colonne che fanno hit
+            TotalHitCountCollector collector = new TotalHitCountCollector();
+            BooleanQuery booleanQuery = new BooleanQuery.Builder()
                     .add(new PhraseQuery("colonna", element), BooleanClause.Occur.MUST).
-                    build(), -1);
+                    build();
+            searcher.search(booleanQuery, collector);
+            TopDocs docs = searcher.search(booleanQuery, collector.getTotalHits());
             //popola la mappa con le colonne ritornate
             for(int i = 0; i < docs.scoreDocs.length; i++){
                 ScoreDoc scoreDoc = docs.scoreDocs[i];
@@ -60,7 +63,7 @@ public class MergeList {
      * @param map
      * @return
      */
-    public static HashMap<String, Integer> sortByValue(HashMap<String, Integer> map)
+    private static HashMap<String, Integer> sortByValue(HashMap<String, Integer> map)
     {
         // Crea una lista di elementi con i valori della mappa
         List<Map.Entry<String, Integer> > list =
