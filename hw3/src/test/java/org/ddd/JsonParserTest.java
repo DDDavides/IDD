@@ -2,18 +2,26 @@ package org.ddd;
 
 import static org.junit.Assert.assertEquals;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonStreamParser;
+import com.google.gson.internal.LinkedTreeMap;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.jupiter.api.BeforeAll;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.Reader;
 import java.io.StringReader;
+import java.util.List;
+import java.util.Map;
 
 public class JsonParserTest {
     private static JsonParser jsonParser;
-
-    @BeforeAll
-    private static void init() {
-        jsonParser = new JsonParser();
-    }
 
     private String makeMultipleJsonObjectString() {
         String simpleJson =   "{\"nome\": \"gallo\", \"A\": { \"B\": [ \"aaaa\" ], \"C\": [ ] }            }\n"
@@ -23,10 +31,13 @@ public class JsonParserTest {
     }
 
     @Test
-    public void testParse() {
-        String jsonString = makeMultipleJsonObjectString();
-        StringReader reader = new StringReader(jsonString);
+    public void testParse() throws FileNotFoundException {
+        jsonParser = new JsonParser();
+        Reader reader = new FileReader("./test.json");
+        Table t = jsonParser.parse(reader).get(0);
 
-        assertEquals(3, jsonParser.parse(reader).size());
+        System.out.println(t);
+
+//        assertEquals(0, jsonParser.parse(reader).size());
     }
 }
