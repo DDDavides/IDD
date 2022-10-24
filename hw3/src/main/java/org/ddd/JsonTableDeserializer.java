@@ -20,8 +20,17 @@ public class JsonTableDeserializer implements JsonDeserializer<Table> {
         // prendo l'indice interno di MongoDB come codice univoco per la mia tabella
         String id = jsonObject.get("_id").getAsJsonObject().get("$oid").getAsString();
 
-        // creo la struttura dati pre la Tabella
-        Table result = new Table(id);
+        // prendo la pagina wikipedia da cui la tabella è stata presa
+        String context = jsonObject.get("referenceContext").getAsString();
+
+        // prendo il numero di righe della tabella
+        int numColumns = jsonObject.get("maxDimensions").getAsJsonObject().get("rows").getAsInt();
+
+        // prendo il numero di righe della tabella
+        int numRows = jsonObject.get("maxDimensions").getAsJsonObject().get("columns").getAsInt();
+
+        // creo la struttura dati per la Tabella
+        Table result = new Table(id, context, numRows, numColumns);
 
         // mi serve solo per sapere quante sono le colonne
         ArrayList<String> headers = jsonDeserializationContext.deserialize(
@@ -37,7 +46,7 @@ public class JsonTableDeserializer implements JsonDeserializer<Table> {
         JsonObject joCell = null;           // cella della tabella da deserializzare
         String columnKey = "";              // chiave della colonna cui si riferisce una cella
         JsonObject coordinates = null;      // JsonObject relativo alle coordinate della cella nella tabella (row, column)
-        int column = 0;                     // numero della colonna cui si riferisce una cella
+        int columnCell = 0;                 // numero della colonna cui si riferisce una cella
         boolean isHeader = false;           // definisce se la cella è un header o meno
         String cleanedText = "";            // testo contenuto in una cella
 
@@ -46,19 +55,19 @@ public class JsonTableDeserializer implements JsonDeserializer<Table> {
             // esprimo il jsonElement come un jsonObject
             joCell = jeCell.getAsJsonObject();
             coordinates = joCell.get("Coordinates").getAsJsonObject();
-            column = coordinates.get("column").getAsInt();
+            columnCell = coordinates.get("column").getAsInt();
             isHeader = joCell.get("isHeader").getAsBoolean();
             cleanedText = joCell.get("cleanedText").getAsString();
 
-            if (columns[column] == null && isHeader)
-                columns[column] = cleanedText;
+            if (columns[columnCell] == null && isHeader)
+                columns[columnCell] = cleanedText;
 
             if(!isHeader) {
-                columnKey = columns[column];
+                columnKey = columns[columnCell];
                 if (columnKey != null) {
                     result.add(columnKey, cleanedText);
                 } else {
-                    unmappedCells.put(cleanedText, column);
+                    unmappedCells.put(cleanedText, columnCell);
                 }
             }
         }

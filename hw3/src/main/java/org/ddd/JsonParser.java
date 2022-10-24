@@ -36,7 +36,8 @@ public class JsonParser {
     }
 
 
-    public Map<String, List<String>> parse(String stringPath) {
-        return Collections.emptyMap();
+    // TODO: da scrivere
+    public List<Table> parse(String stringPath) {
+        return Collections.emptyList();
     }
 }
