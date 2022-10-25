@@ -24,13 +24,12 @@ public class JsonParser {
     public List<Table> parse(Reader reader) {
         List<Table> tables = new ArrayList<>();
         JsonStreamParser jsp = new JsonStreamParser(reader);
-
         while(jsp.hasNext()) {
             JsonElement jsonElement = jsp.next();
-
             if (jsonElement.isJsonObject()) {
                 Table table = gson.fromJson(jsonElement, Table.class);
                 tables.add(table);
+
             }
         }
 

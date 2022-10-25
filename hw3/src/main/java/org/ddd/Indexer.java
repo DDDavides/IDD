@@ -30,7 +30,8 @@ import java.util.Map;
 
 public class Indexer {
     private static String INDEX_PATH = "../index/";
-    private static String CORPUS_PATH = "../corpus/tables.json";
+    private static String CORPUS_PATH = "/Volumes/ssd esterno/IDD/tables.json";
+    //private static String CORPUS_PATH = "../corpus/tables.json";
 
     public static void main(String[] args) {
         indexDocs(INDEX_PATH, CORPUS_PATH);

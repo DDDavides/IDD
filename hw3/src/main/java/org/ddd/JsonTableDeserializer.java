@@ -22,10 +22,10 @@ public class JsonTableDeserializer implements JsonDeserializer<Table> {
         String context = jsonObject.get("referenceContext").getAsString();
 
         // prendo il numero di righe della tabella
-        int numColumns = jsonObject.get("maxDimensions").getAsJsonObject().get("row").getAsInt() + 1;
+        int numColumns = jsonObject.get("maxDimensions").getAsJsonObject().get("column").getAsInt() + 1;
 
         // prendo il numero di righe della tabella
-        int numRows = jsonObject.get("maxDimensions").getAsJsonObject().get("column").getAsInt() + 1;
+        int numRows = jsonObject.get("maxDimensions").getAsJsonObject().get("row").getAsInt() + 1;
 
         // creo la struttura dati per la Tabella
         Table result = new Table(id, context, numRows, numColumns);
