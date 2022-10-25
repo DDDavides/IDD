@@ -1,14 +1,17 @@
 package org.ddd;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.io.*;
 import java.util.*;
 
 @Data
 public class Table {
     private String id;
     private Map<String, Set<String>> columns2dataColumn;
-
     private String context;
     private int numRows;
     private int numColumns;
