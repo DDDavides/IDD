@@ -60,4 +60,17 @@ public class Table {
         }
         return strBuilder.toString();
     }
+
+    @Override
+    public String toString(){
+        StringBuilder str = new StringBuilder();
+        str.append("----------------------------------\n");
+        str.append("Table id: " + getId() + "\n");
+        str.append("\tcontext: " + getContext() + "\n");
+        str.append("\tnumRows: " + getNumRows() + "\n");
+        str.append("\tnumColumns: " + getNumColumns() + "\n");
+        str.append("\tColumnsName: " + getColumns2dataColumn().keySet().toString());
+        return str.toString();
+    }
+
 }
