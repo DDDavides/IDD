@@ -48,11 +48,29 @@ public class Table {
         dataColumn.add(elem);
     }
 
+    /**
+     * Stampa tutti i dati di una colonna concatenati con ";;"
+     * @param columnName nome della colonna
+     * @return stringa che rappresenta i dati di una colonna concatenati con ";;"
+     */
     public String columnToString(String columnName){
         StringBuilder strBuilder = new StringBuilder();
         for(String data : columns2dataColumn.get(columnName)){
-            strBuilder.append(data+";");
+            strBuilder.append(data+";;");
         }
         return strBuilder.toString();
     }
+
+    @Override
+    public String toString(){
+        StringBuilder str = new StringBuilder();
+        str.append("----------------------------------\n");
+        str.append("Table id: " + getId() + "\n");
+        str.append("\tcontext: " + getContext() + "\n");
+        str.append("\tnumRows: " + getNumRows() + "\n");
+        str.append("\tnumColumns: " + getNumColumns() + "\n");
+        str.append("\tColumnsName: " + getColumns2dataColumn().keySet().toString());
+        return str.toString();
+    }
+
 }

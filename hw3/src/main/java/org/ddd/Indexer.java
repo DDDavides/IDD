@@ -2,13 +2,17 @@ package org.ddd;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.core.KeywordTokenizerFactory;
+import org.apache.lucene.analysis.core.LowerCaseFilterFactory;
+import org.apache.lucene.analysis.core.StopFilterFactory;
 import org.apache.lucene.analysis.custom.CustomAnalyzer;
 import org.apache.lucene.analysis.miscellaneous.PerFieldAnalyzerWrapper;
+import org.apache.lucene.analysis.pattern.PatternTokenizerFactory;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.codecs.Codec;
 import org.apache.lucene.codecs.simpletext.SimpleTextCodec;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
@@ -26,13 +30,23 @@ import java.util.Map;
 
 public class Indexer {
     private static String INDEX_PATH = "../index/";
+    private static String CORPUS_PATH = "../corpus/tables.json";
 
     public static void main(String[] args) {
-        Path idxPath = Paths.get(INDEX_PATH);
+        indexDocs(INDEX_PATH, CORPUS_PATH);
+    }
+
+    /**
+     * Indicizza i documenti di un corpus in una cartella dove memorizzare l'indice
+     * @param indexPath percorso della cartella dove memorizzare l'indice
+     * @param corpusPath percorso del corpus di documenti da indicizzare
+     */
+    public static void indexDocs(String indexPath, String corpusPath){
+        Path idxPath = Paths.get(indexPath);
         try {
             Directory dir = FSDirectory.open(idxPath);
             try {
-                indexDocs(dir, new SimpleTextCodec());
+                indexDocs(dir, corpusPath, new SimpleTextCodec());
             } catch (Exception ex) {
                 System.out.println("Failed to index documents\n" + ex.getMessage());
             }
@@ -41,44 +55,54 @@ public class Indexer {
         }
     }
 
-    private static void indexDocs(Directory dir, Codec codec) throws Exception{
-        /*
-            TODO: 1) Definisci gli analyzer per i campi
-                  2) Crea una mappa per associare ad un field l'analyzer
-                  3) Passalo all'IndexWriterConfig
-        */
-
+    private static void indexDocs(Directory dirIndex, String corpusPath, Codec codec) throws Exception{
+        // Table analyzer
         Analyzer tableAnalyzer = new StandardAnalyzer();
-        Analyzer datacolumnDataAnalyzer = CustomAnalyzer.builder()
-                .withTokenizer(KeywordTokenizerFactory.class)
+        /* ColumnData analyzer :
+        *  Tokenizer = PatternTokenizer che tokenizza dividendo i token tramite ";;"
+        *  TokenFilter = LowerCaseFilter
+        */
+        Analyzer columnDataAnalyzer = CustomAnalyzer.builder()
+                .withTokenizer(PatternTokenizerFactory.class, "pattern", "\\;;", "group", "-1")
+                .addTokenFilter(LowerCaseFilterFactory.class)
                 .build();
 
+        // Aggiunto una mappa di <field,analyzer> per passarla all'indexWriter
         Map<String, Analyzer> perFieldAnalyzer = new HashMap<>();
-        // TODO: Aggiungi analyzer per i field (DA DEFINIRE)
         perFieldAnalyzer.put("tabella", tableAnalyzer);
-        perFieldAnalyzer.put("colonna", datacolumnDataAnalyzer);
+        perFieldAnalyzer.put("colonna", columnDataAnalyzer);
         Analyzer analyzerWrapper = new PerFieldAnalyzerWrapper(new StandardAnalyzer(), perFieldAnalyzer);
 
         IndexWriterConfig idxWriterConfig = new IndexWriterConfig(analyzerWrapper);
+        // Setto il codec per avere un indice leggibile
         if(codec != null)
             idxWriterConfig.setCodec(codec);
-        IndexWriter indexWriter = new IndexWriter(dir, idxWriterConfig);
+        IndexWriter indexWriter = new IndexWriter(dirIndex, idxWriterConfig);
         indexWriter.deleteAll();
 
-        /*
-            TODO: 1) Richiamo il parser sui documenti del corpus
-                  2) Su quella lista di tabelle allora eseguo l'indicizzazione
-        */
+        // Eseguo il parser dei documenti json nel corpus
         JsonParser parser = new JsonParser();
-        // TODO: aggiungere directory dove si trova il corpus
-        List<Table> tables = parser.parse("");
+        List<Table> tables = parser.parse(corpusPath);
+        showTablesInfo(tables);
+        // Per ogni tabella
         for(Table t : tables){
+            // Per ogni colonna della tabella t
             for(String columnName : t.getColumns2dataColumn().keySet()) {
+                // creo un documento contente l'id della tabella associata alla colonna
+                // e il campo colonna a cui associamo tutti i dati nelle varie celle
                 Document doc = new Document();
-                // doc.add(new TextField("tabella", t.id, Field.Store.YES));
-                // TODO: trasforma i dati nella colonna in una sequenza di stringhe divise da un separatore
+                doc.add(new StringField("tabella", t.getId(), Field.Store.YES));
                 doc.add(new TextField("colonna", t.columnToString(columnName), Field.Store.YES));
+                indexWriter.addDocument(doc);
             }
+        }
+        indexWriter.commit();
+        indexWriter.close();
+    }
+
+    private static void showTablesInfo(List<Table> tables) {
+        for (Table t : tables) {
+            System.out.println(t);
         }
     }
 }
