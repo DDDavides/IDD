@@ -85,6 +85,9 @@ public class Indexer {
         JsonParser parser = new JsonParser();
         List<Table> tables = parser.parse(corpusPath);
         showTablesInfo(tables);
+        long start;
+        long end;
+        long totalTime=0;
         // Per ogni tabella
         for(Table t : tables){
             // Per ogni colonna della tabella t
@@ -94,9 +97,13 @@ public class Indexer {
                 Document doc = new Document();
                 doc.add(new StringField("tabella", t.getId(), Field.Store.YES));
                 doc.add(new TextField("colonna", t.columnToString(columnName), Field.Store.YES));
+                start = System.currentTimeMillis();
                 indexWriter.addDocument(doc);
+                end = System.currentTimeMillis();
+                totalTime = end - start;
             }
         }
+        System.out.println("Indexing time: " + totalTime + "ms");
         indexWriter.commit();
         indexWriter.close();
     }

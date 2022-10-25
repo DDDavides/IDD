@@ -29,7 +29,6 @@ public class JsonParser {
             if (jsonElement.isJsonObject()) {
                 Table table = gson.fromJson(jsonElement, Table.class);
                 tables.add(table);
-
             }
         }
 
