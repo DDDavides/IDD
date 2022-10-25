@@ -6,6 +6,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonStreamParser;
 import com.google.gson.internal.LinkedTreeMap;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,7 +39,8 @@ public class JsonParser {
 
 
     // TODO: da scrivere
-    public List<Table> parse(String stringPath) {
-        return Collections.emptyList();
+    public List<Table> parse(String stringPath) throws FileNotFoundException {
+        Reader reader = new FileReader(stringPath);
+        return parse(reader);
     }
 }

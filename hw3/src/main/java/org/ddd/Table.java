@@ -35,7 +35,7 @@ public class Table {
     public Set<String> getDataByColumn(String columnId) {
         return columns2dataColumn.get(columnId);
     }
-    public void add(String columnKey, String elem) {
+    public void addElemToColumn(String columnKey, String elem) {
         Set<String> dataColumn;
 
         if (columns2dataColumn.containsKey(columnKey)) {

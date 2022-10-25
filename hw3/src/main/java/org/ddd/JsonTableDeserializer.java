@@ -3,9 +3,7 @@ package org.ddd;
 import com.google.gson.*;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class JsonTableDeserializer implements JsonDeserializer<Table> {
@@ -24,18 +22,18 @@ public class JsonTableDeserializer implements JsonDeserializer<Table> {
         String context = jsonObject.get("referenceContext").getAsString();
 
         // prendo il numero di righe della tabella
-        int numColumns = jsonObject.get("maxDimensions").getAsJsonObject().get("rows").getAsInt();
+        int numColumns = jsonObject.get("maxDimensions").getAsJsonObject().get("rows").getAsInt() + 1;
 
         // prendo il numero di righe della tabella
-        int numRows = jsonObject.get("maxDimensions").getAsJsonObject().get("columns").getAsInt();
+        int numRows = jsonObject.get("maxDimensions").getAsJsonObject().get("columns").getAsInt() + 1;
 
         // creo la struttura dati per la Tabella
         Table result = new Table(id, context, numRows, numColumns);
 
         // mi serve solo per sapere quante sono le colonne
-        ArrayList<String> headers = jsonDeserializationContext.deserialize(
-                jsonObject.get("headersCleaned").getAsJsonArray(), List.class);
-        int headerSize = headers.size(); // -> mi prendo il numero di colonne
+        // ArrayList<String> headers = jsonDeserializationContext.deserialize(
+        //        jsonObject.get("headersCleaned").getAsJsonArray(), List.class);
+        int headerSize = numColumns; // -> mi prendo il numero di colonne
 
         // allocco la memoria per un array associativo: indice -> colonna
         String[] columns = new String[headerSize];
@@ -65,7 +63,7 @@ public class JsonTableDeserializer implements JsonDeserializer<Table> {
             if(!isHeader) {
                 columnKey = columns[columnCell];
                 if (columnKey != null) {
-                    result.add(columnKey, cleanedText);
+                    result.addElemToColumn(columnKey, cleanedText);
                 } else {
                     unmappedCells.put(cleanedText, columnCell);
                 }
@@ -73,7 +71,7 @@ public class JsonTableDeserializer implements JsonDeserializer<Table> {
         }
 
         for (Map.Entry<String, Integer> cell : unmappedCells.entrySet()) {
-            result.add(columns[cell.getValue()], cell.getKey());
+            result.addElemToColumn(columns[cell.getValue()], cell.getKey());
         }
 
         return result;
