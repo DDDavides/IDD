@@ -18,7 +18,7 @@ import java.util.LinkedList;
  */
 public class App {
 
-    private static String indexPath;
+    private static String indexPath = Utility.INDEX_PATH;
 
     public static void main(String[] args) throws IOException {
         Path path = Paths.get(indexPath);

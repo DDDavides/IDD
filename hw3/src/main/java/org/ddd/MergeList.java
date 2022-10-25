@@ -47,7 +47,7 @@ public class MergeList {
             }
         }
         //ordina la mappa per i valori che fanno più overlap
-        column2frequency = sortByValue(column2frequency);
+        column2frequency = Utility.sortByValue(column2frequency);
         List<String> topKoverlapElements = new LinkedList<>();
         //ritorna solo le prime topk colonne
         String[] columns = (String[]) column2frequency.keySet().toArray();
@@ -72,34 +72,5 @@ public class MergeList {
             documents.add(doc);
         }
         return documents;
-    }
-
-    /**
-     * Metodo che ordina in base ai campi value
-     * una mappa passata come parametro
-     * @param map
-     * @return
-     */
-    private static HashMap<String, Integer> sortByValue(HashMap<String, Integer> map)
-    {
-        // Crea una lista di elementi con i valori della mappa
-        List<Map.Entry<String, Integer> > list =
-                new LinkedList<>(map.entrySet());
-
-        // Ordina la lista
-        Collections.sort(list, new Comparator<Map.Entry<String, Integer> >() {
-            public int compare(Map.Entry<String, Integer> o1,
-                               Map.Entry<String, Integer> o2)
-            {
-                return -(o1.getValue()).compareTo(o2.getValue());
-            }
-        });
-
-        // Metti i dati ordinati della lista in una hashmap
-        HashMap<String, Integer> temp = new LinkedHashMap<>();
-        for (Map.Entry<String, Integer> aa : list) {
-            temp.put(aa.getKey(), aa.getValue());
-        }
-        return temp;
     }
 }

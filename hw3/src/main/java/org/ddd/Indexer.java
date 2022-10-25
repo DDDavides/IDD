@@ -1,5 +1,6 @@
 package org.ddd;
 
+import com.google.gson.Gson;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.core.KeywordTokenizerFactory;
 import org.apache.lucene.analysis.core.LowerCaseFilterFactory;
@@ -19,7 +20,7 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -28,10 +29,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.ddd.Utility.CORPUS_PATH;
+import static org.ddd.Utility.INDEX_PATH;
+
 public class Indexer {
-    private static String INDEX_PATH = "../index/";
-    private static String CORPUS_PATH = "/Volumes/ssd esterno/IDD/tables.json";
-    //private static String CORPUS_PATH = "../corpus/tables.json";
 
     public static void main(String[] args) {
         indexDocs(INDEX_PATH, CORPUS_PATH);
@@ -84,10 +85,11 @@ public class Indexer {
         // Eseguo il parser dei documenti json nel corpus
         JsonParser parser = new JsonParser();
         List<Table> tables = parser.parse(corpusPath);
-        showTablesInfo(tables);
+
         long start;
         long end;
         long totalTime=0;
+        saveTablesInfo(tables);
         // Per ogni tabella
         for(Table t : tables){
             // Per ogni colonna della tabella t
@@ -97,20 +99,28 @@ public class Indexer {
                 Document doc = new Document();
                 doc.add(new StringField("tabella", t.getId(), Field.Store.YES));
                 doc.add(new TextField("colonna", t.columnToString(columnName), Field.Store.YES));
-                start = System.currentTimeMillis();
+                start = System.nanoTime();
                 indexWriter.addDocument(doc);
-                end = System.currentTimeMillis();
-                totalTime = end - start;
+                end = System.nanoTime();
+                totalTime += end - start;
             }
         }
-        System.out.println("Indexing time: " + totalTime + "ms");
+        System.out.println("Indexing time: " + totalTime + "ns");
         indexWriter.commit();
         indexWriter.close();
     }
 
-    private static void showTablesInfo(List<Table> tables) {
+    private static void saveTablesInfo(List<Table> tables) throws IOException {
+        File f = new File(Utility.statsFilePath);
+        if(!f.exists())
+            f.createNewFile();
+        Gson gson = new Gson();
+        Writer writer = new BufferedWriter(new FileWriter(Utility.statsFilePath, false));
         for (Table t : tables) {
-            System.out.println(t);
+            gson.toJson(t, writer);
+            writer.write("\n");
         }
+
+        writer.close();
     }
 }
