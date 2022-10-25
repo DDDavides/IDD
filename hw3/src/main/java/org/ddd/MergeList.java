@@ -17,6 +17,9 @@ public class MergeList {
      * @return
      * @throws Exception
      */
+    //TODO: sostituire searcher con lista di risultati e
+    // creare apposita classe searcher che effettua la
+    // ricerca della query e gli passa tale lista di risultati
     public static List<String> topKOverlapMerge(int topk, IndexSearcher searcher, List<String> columnElements) throws Exception {
         //se il numero di elementi richiesti topk è minore
         //o uguale di 0 lancia un eccezione
