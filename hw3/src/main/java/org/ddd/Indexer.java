@@ -2,13 +2,16 @@ package org.ddd;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.core.KeywordTokenizerFactory;
+import org.apache.lucene.analysis.core.StopFilterFactory;
 import org.apache.lucene.analysis.custom.CustomAnalyzer;
 import org.apache.lucene.analysis.miscellaneous.PerFieldAnalyzerWrapper;
+import org.apache.lucene.analysis.pattern.PatternTokenizerFactory;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.codecs.Codec;
 import org.apache.lucene.codecs.simpletext.SimpleTextCodec;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
@@ -42,21 +45,15 @@ public class Indexer {
     }
 
     private static void indexDocs(Directory dir, Codec codec) throws Exception{
-        /*
-            TODO: 1) Definisci gli analyzer per i campi
-                  2) Crea una mappa per associare ad un field l'analyzer
-                  3) Passalo all'IndexWriterConfig
-        */
-
         Analyzer tableAnalyzer = new StandardAnalyzer();
-        Analyzer datacolumnDataAnalyzer = CustomAnalyzer.builder()
-                .withTokenizer(KeywordTokenizerFactory.class)
+        Analyzer dataColumnDataAnalyzer = CustomAnalyzer.builder()
+                .withTokenizer(PatternTokenizerFactory.class, "pattern", "\\;;", "group", "-1")
+                .addTokenFilter(StopFilterFactory.class, "ignoreCase", "false", "words", "stopwords.txt", "format", "wordset")
                 .build();
 
         Map<String, Analyzer> perFieldAnalyzer = new HashMap<>();
-        // TODO: Aggiungi analyzer per i field (DA DEFINIRE)
         perFieldAnalyzer.put("tabella", tableAnalyzer);
-        perFieldAnalyzer.put("colonna", datacolumnDataAnalyzer);
+        perFieldAnalyzer.put("colonna", dataColumnDataAnalyzer);
         Analyzer analyzerWrapper = new PerFieldAnalyzerWrapper(new StandardAnalyzer(), perFieldAnalyzer);
 
         IndexWriterConfig idxWriterConfig = new IndexWriterConfig(analyzerWrapper);
@@ -65,18 +62,12 @@ public class Indexer {
         IndexWriter indexWriter = new IndexWriter(dir, idxWriterConfig);
         indexWriter.deleteAll();
 
-        /*
-            TODO: 1) Richiamo il parser sui documenti del corpus
-                  2) Su quella lista di tabelle allora eseguo l'indicizzazione
-        */
         JsonParser parser = new JsonParser();
-        // TODO: aggiungere directory dove si trova il corpus
-        List<Table> tables = parser.parse("");
+        List<Table> tables = parser.parse("../corpus/");
         for(Table t : tables){
             for(String columnName : t.getColumns2dataColumn().keySet()) {
                 Document doc = new Document();
-                // doc.add(new TextField("tabella", t.id, Field.Store.YES));
-                // TODO: trasforma i dati nella colonna in una sequenza di stringhe divise da un separatore
+                doc.add(new StringField("tabella", t.getId(), Field.Store.YES));
                 doc.add(new TextField("colonna", t.columnToString(columnName), Field.Store.YES));
             }
         }
