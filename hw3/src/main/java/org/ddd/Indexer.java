@@ -48,7 +48,7 @@ public class Indexer {
         try {
             Directory dir = FSDirectory.open(idxPath);
             try {
-                indexDocs(dir, corpusPath, new SimpleTextCodec());
+                indexDocs(dir, corpusPath, (Codec) Class.forName(Utility.CODEC).newInstance());
             } catch (Exception ex) {
                 System.out.println("Failed to index documents\n" + ex.getMessage());
             }
@@ -72,6 +72,7 @@ public class Indexer {
         // Aggiunto una mappa di <field,analyzer> per passarla all'indexWriter
         Map<String, Analyzer> perFieldAnalyzer = new HashMap<>();
         perFieldAnalyzer.put("tabella", tableAnalyzer);
+        perFieldAnalyzer.put("nomecolonna", tableAnalyzer);
         perFieldAnalyzer.put("colonna", columnDataAnalyzer);
         Analyzer analyzerWrapper = new PerFieldAnalyzerWrapper(new StandardAnalyzer(), perFieldAnalyzer);
 
@@ -98,7 +99,8 @@ public class Indexer {
                 // e il campo colonna a cui associamo tutti i dati nelle varie celle
                 Document doc = new Document();
                 doc.add(new StringField("tabella", t.getId(), Field.Store.YES));
-                doc.add(new TextField("colonna", t.columnToString(columnName), Field.Store.YES));
+                doc.add(new StringField("nomecolonna", columnName, Field.Store.YES));
+                doc.add(new TextField("colonna", t.columnToString(columnName), Field.Store.NO));
                 start = System.nanoTime();
                 indexWriter.addDocument(doc);
                 end = System.nanoTime();

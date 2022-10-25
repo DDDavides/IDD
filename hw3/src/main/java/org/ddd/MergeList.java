@@ -11,7 +11,7 @@ public class MergeList {
 
     private static IndexSearcher searcher;
     public MergeList(IndexSearcher searcher){
-        searcher = searcher;
+        this.searcher = searcher;
     }
     /**
      * Metodo che ritorna i primi top topk
@@ -39,10 +39,12 @@ public class MergeList {
             //popola la mappa con le colonne ritornate
             for(Document doc : documents){
                 //se la colonna è già presente nella mappa
-                if (column2frequency.containsKey(doc.toString())){
-                    column2frequency.put(doc.toString(), column2frequency.get(doc) + 1);
+                String nomecolonna = doc.get("nomecolonna");
+                nomecolonna += "_" + doc.get("tabella");
+                if (column2frequency.containsKey(nomecolonna)){
+                    column2frequency.put(nomecolonna, column2frequency.get(nomecolonna) + 1);
                 }else {
-                    column2frequency.put(doc.toString(), 1);
+                    column2frequency.put(nomecolonna, 1);
                 }
             }
         }
@@ -50,9 +52,9 @@ public class MergeList {
         column2frequency = Utility.sortByValue(column2frequency);
         List<String> topKoverlapElements = new LinkedList<>();
         //ritorna solo le prime topk colonne
-        String[] columns = (String[]) column2frequency.keySet().toArray();
-        for(int i = 0; i < topk; i++){
-            topKoverlapElements.add(columns[i]);
+        ArrayList<String> columns = new ArrayList<>(column2frequency.keySet());
+        for(int i = 0; i < topk && i < columns.size(); i++){
+            topKoverlapElements.add(columns.get(i));
         }
         return topKoverlapElements;
     }
@@ -61,7 +63,7 @@ public class MergeList {
         List<Document> documents = new ArrayList<>();
         TotalHitCountCollector collector = new TotalHitCountCollector();
         BooleanQuery booleanQuery = new BooleanQuery.Builder()
-                .add(new PhraseQuery("colonna", element), BooleanClause.Occur.MUST).
+                .add(new TermQuery(new Term("colonna", element)), BooleanClause.Occur.MUST).
                 build();
         searcher.search(booleanQuery, collector);
         TopDocs docs = searcher.search(booleanQuery, collector.getTotalHits());
