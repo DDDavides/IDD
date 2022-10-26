@@ -92,7 +92,12 @@ public class Indexer {
         long totalTime=0;
         saveTablesInfo(tables);
         // Per ogni tabella
+        int i = 0;
+        int j = 0;
         for(Table t : tables){
+            j++;
+            System.out.println("Tabella : " + j);
+
             // Per ogni colonna della tabella t
             for(String columnName : t.getColumns2dataColumn().keySet()) {
                 // creo un documento contente l'id della tabella associata alla colonna
@@ -100,8 +105,11 @@ public class Indexer {
                 Document doc = new Document();
                 doc.add(new StringField("tabella", t.getId(), Field.Store.YES));
                 doc.add(new StringField("nomecolonna", columnName, Field.Store.YES));
+                if(i == 179 || i == 180 || i == 178)
+                    System.out.println(columnName);
                 doc.add(new TextField("colonna", t.columnToString(columnName), Field.Store.NO));
                 start = System.nanoTime();
+                System.out.println(i++);
                 indexWriter.addDocument(doc);
                 end = System.nanoTime();
                 totalTime += end - start;

@@ -71,6 +71,8 @@ public class JsonTableDeserializer implements JsonDeserializer<Table> {
         }
 
         for (Map.Entry<String, Integer> cell : unmappedCells.entrySet()) {
+            if (columns[cell.getValue()]==null)
+                columns[cell.getValue()] = cell.getValue().toString();
             result.addElemToColumn(columns[cell.getValue()], cell.getKey());
         }
 
