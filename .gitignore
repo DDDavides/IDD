@@ -54,3 +54,5 @@ Thumbs.db
 # documenti del corpus
 target/
 index/
+index_test/
+corpus/
