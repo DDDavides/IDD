@@ -20,7 +20,7 @@ public class Utility {
      * @param map
      * @return
      */
-    public static HashMap<String, Integer> sortByValue(HashMap<String, Integer> map)
+    public static Map<String, Integer> sortByValue(Map<String, Integer> map)
     {
         // Crea una lista di elementi con i valori della mappa
         List<Map.Entry<String, Integer> > list =

@@ -31,7 +31,7 @@ public class App {
                 searcher = new IndexSearcher(reader);
                 //per ogni termine della query cerca tutte le colonne che fanno hit
                 MergeList ml = new MergeList(searcher);
-                String[] stringhe = {"katab","naktubu","taktubna","taktubu","taktubāni","taktubīna","taktubūna","write","yaktubna","yaktubu","yaktubāni","yaktubūna","ʼaktubu"};
+                String[] stringhe = {"pirlo", "katab","naktubu","taktubna","taktubu","taktubāni","taktubīna","taktubūna","write","pc", "pirlo", "shevchenko"};
                 System.out.println("Effettuo la query\n");
                 System.out.println(ml.topKOverlapMerge(5, new ArrayList<>(List.of(stringhe))));
             } catch (Exception e) {

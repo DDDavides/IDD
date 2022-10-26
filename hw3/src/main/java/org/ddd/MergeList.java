@@ -22,10 +22,7 @@ public class MergeList {
      * @return
      * @throws Exception
      */
-    //TODO: sostituire searcher con lista di risultati e
-    // creare apposita classe searcher che effettua la
-    // ricerca della query e gli passa tale lista di risultati
-    public List<String> topKOverlapMerge(int topk, List<String> columnElements) throws Exception {
+    public Map<String, Integer> topKOverlapMerge(int topk, List<String> columnElements) throws Exception {
         //se il numero di elementi richiesti topk è minore
         //o uguale di 0 lancia un eccezione
         if(topk <= 0){
@@ -33,14 +30,16 @@ public class MergeList {
         }
         //riempi la mappa colonna termini contenuti in base all'overlap
         //tra la query e la colonna
-        HashMap<String, Integer> column2frequency = new HashMap<>();
+        Map<String, Integer> column2frequency = new HashMap<>();
+        // per ogni elemento nella colonna di query
         for(String element: columnElements){
+            // cerca tutti i documenti su cui quella colonna fa hit
             List<Document> documents = search(element);
             //popola la mappa con le colonne ritornate
             for(Document doc : documents){
-                //se la colonna è già presente nella mappa
                 String nomecolonna = doc.get("nomecolonna");
                 nomecolonna += "_" + doc.get("tabella");
+                //se la colonna è già presente nella mappa
                 if (column2frequency.containsKey(nomecolonna)){
                     column2frequency.put(nomecolonna, column2frequency.get(nomecolonna) + 1);
                 }else {
@@ -50,24 +49,33 @@ public class MergeList {
         }
         //ordina la mappa per i valori che fanno più overlap
         column2frequency = Utility.sortByValue(column2frequency);
-        List<String> topKoverlapElements = new LinkedList<>();
+        Map<String, Integer> topKoverlapElements = new HashMap<>();
         //ritorna solo le prime topk colonne
         ArrayList<String> columns = new ArrayList<>(column2frequency.keySet());
         for(int i = 0; i < topk && i < columns.size(); i++){
-            topKoverlapElements.add(columns.get(i));
+            topKoverlapElements.put(columns.get(i), column2frequency.get(columns.get(i)));
         }
-        return topKoverlapElements;
+        return Utility.sortByValue(topKoverlapElements);
     }
 
     private static List<Document> search(String element) throws IOException {
-        List<Document> documents = new ArrayList<>();
-        TotalHitCountCollector collector = new TotalHitCountCollector();
-        BooleanQuery booleanQuery = new BooleanQuery.Builder()
+        // crea la term query per l'elemento della colonna
+        Query booleanQuery = new BooleanQuery.Builder()
                 .add(new TermQuery(new Term("colonna", element)), BooleanClause.Occur.MUST).
                 build();
+
+        // prendi le totalhits del termine della colonna da cercare
+        TotalHitCountCollector collector = new TotalHitCountCollector();
+        System.out.println("Searching documents for: " + element);
         searcher.search(booleanQuery, collector);
-        TopDocs docs = searcher.search(booleanQuery, collector.getTotalHits());
-        //popola la mappa con le colonne ritornate
+        int totalHits = collector.getTotalHits();
+        if(totalHits == 0){
+            booleanQuery = new MatchNoDocsQuery();
+            totalHits = 1;
+        }
+        // cerca tutti i documenti che fanno hit
+        TopDocs docs = searcher.search(booleanQuery, totalHits);
+        List<Document> documents = new ArrayList<>();
         for(int i = 0; i < docs.scoreDocs.length; i++) {
             ScoreDoc scoreDoc = docs.scoreDocs[i];
             Document doc = searcher.doc(scoreDoc.doc);
