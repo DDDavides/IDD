@@ -16,4 +16,4 @@ Alcune tabelle non avevano le colonne quindi gli abbiamo assegnato alla tabella,
 
 Abbiamo assunto che esiste un solo header per ogni tabella
 
-Poiche andiamo lenti Gallo ha eseguito il multithreading
+L'indicizzazione dura pochissimo così come il searching quindi abbiamo generato più thread per gestire le porzioni delle diverse tabelle

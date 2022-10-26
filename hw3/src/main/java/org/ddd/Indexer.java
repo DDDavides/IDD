@@ -28,6 +28,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import static org.ddd.Utility.CORPUS_PATH;
 import static org.ddd.Utility.INDEX_PATH;
@@ -50,7 +53,7 @@ public class Indexer {
             try {
                 indexDocs(dir, corpusPath, (Codec) Class.forName(Utility.CODEC).newInstance());
             } catch (Exception ex) {
-                System.out.println("Failed to index documents\n" + ex.getMessage());
+                System.out.println("Failed during indexing documents\n" + ex.getMessage());
             }
         } catch (IOException e) {
             System.out.println("Failed to open index directory " + idxPath + "\n" + e.getMessage());
@@ -86,46 +89,84 @@ public class Indexer {
 
         // Eseguo il parser dei documenti json nel corpus
         JsonParser parser = new JsonParser();
+        long parsingTime = System.nanoTime();
         List<Table> tables = parser.parse(corpusPath);
-
-        long start;
-        long end;
-        long totalTime=0;
+        parsingTime = System.nanoTime() - parsingTime;
+        System.out.println("Parsing time: " + parsingTime + "ns");
         saveTablesInfo(tables);
-        // Per ogni tabella
-        int i = 0;
-        int j = 0;
-        for(Table t : tables){
-            j++;
-            System.out.println("Tabella : " + j);
 
-            // Per ogni colonna della tabella t
-            for(String columnName : t.getColumns2dataColumn().keySet()) {
-                // creo un documento contente l'id della tabella associata alla colonna
-                // e il campo colonna a cui associamo tutti i dati nelle varie celle
-                Document doc = new Document();
-                doc.add(new StringField("tabella", t.getId(), Field.Store.YES));
-                doc.add(new StringField("contesto", t.getContext(), Field.Store.YES));
-                doc.add(new StringField("nomecolonna", columnName, Field.Store.YES));
-                doc.add(new TextField("colonna", t.columnToString(columnName), Field.Store.NO));
-                start = System.nanoTime();
-                System.out.println(i++);
-                indexWriter.addDocument(doc);
-                end = System.nanoTime();
-                totalTime += end - start;
+        int maxCoreAvailable = Runtime.getRuntime().availableProcessors();
+        ThreadPoolExecutor texec = (ThreadPoolExecutor) Executors.newFixedThreadPool(maxCoreAvailable);
+
+        ThreadFactory tfact = texec.getThreadFactory();
+
+        int numTables = tables.size();
+        System.out.println("Numero tabelle: " + numTables);
+        System.out.println("Numero core disponibili: " + maxCoreAvailable);
+        int tables2thread = numTables / maxCoreAvailable;
+        int resto = numTables % maxCoreAvailable;
+        System.out.println("Numero di tabelle per thread: " + tables2thread);
+        System.out.println("Resto: " + resto);
+
+        int idxLastTableGroup = tables2thread;
+        int i = 0;
+        long indexingTime = 0;
+        while(idxLastTableGroup!=tables.size()) {
+            System.out.println("i: " + i);
+            System.out.println("idxLast: " + idxLastTableGroup);
+            if(idxLastTableGroup + resto == tables.size()) {
+                List<Table> tableToIndex = tables.subList(idxLastTableGroup, idxLastTableGroup+resto);
+                ThreadIndexer tidx = new ThreadIndexer(tableToIndex, indexWriter);
+                Thread t = tfact.newThread(tidx);
+                System.out.println("Thread id: " + t.getId());
+                long delta = System.nanoTime();
+                t.start();
+                delta = System.nanoTime() - delta;
+                indexingTime += delta;
+                break;
             }
+            System.out.println("SubTable [" + i + ", " + idxLastTableGroup + "]");
+            List<Table> tableToIndex = tables.subList(i, idxLastTableGroup);
+            i = idxLastTableGroup;
+            idxLastTableGroup += tables2thread;
+            ThreadIndexer tidx = new ThreadIndexer(tableToIndex, indexWriter);
+            Thread t = tfact.newThread(tidx);
+            System.out.println("Thread id: " + t.getId());
+            long delta = System.nanoTime();
+            t.start();
+            delta = System.nanoTime() - delta;
+            indexingTime += delta;
         }
-        System.out.println("Indexing time: " + totalTime + "ns");
-        indexWriter.commit();
-        indexWriter.close();
+        System.out.println("Indexing time: " + indexingTime + "ns");
+//        indexWriter.close();
     }
 
     private static void saveTablesInfo(List<Table> tables) throws IOException {
-        File f = new File(Utility.statsFilePath);
-        if(!f.exists())
-            f.createNewFile();
+        boolean statsDirCreated = true;
+        boolean statsFileCreated = true;
+
+        // Creo la directory dove mettere il file stats
+        File statsDir = new File(Utility.STATS_DIR_PATH);
+        if(!statsDir.exists()){
+            statsDirCreated = statsDir.mkdir();
+        }
+
+        // Creo il file stats nella sua directory
+        File f = new File(Utility.STATS_FILE);
+        if(!f.exists()) {
+            statsFileCreated = f.createNewFile();
+        }
+
+        if(!statsDirCreated) {
+            throw new IOException("Stats directory not created\n");
+        }
+
+        if(!statsFileCreated){
+            throw new IOException("Stats file not created\n");
+        }
+
         Gson gson = new Gson();
-        Writer writer = new BufferedWriter(new FileWriter(Utility.statsFilePath, false));
+        Writer writer = new BufferedWriter(new FileWriter(Utility.STATS_FILE, false));
         for (Table t : tables) {
             gson.toJson(t, writer);
             writer.write("\n");
