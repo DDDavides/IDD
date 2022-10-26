@@ -72,6 +72,7 @@ public class Indexer {
         // Aggiunto una mappa di <field,analyzer> per passarla all'indexWriter
         Map<String, Analyzer> perFieldAnalyzer = new HashMap<>();
         perFieldAnalyzer.put("tabella", tableAnalyzer);
+        perFieldAnalyzer.put("contesto", tableAnalyzer);
         perFieldAnalyzer.put("nomecolonna", tableAnalyzer);
         perFieldAnalyzer.put("colonna", columnDataAnalyzer);
         Analyzer analyzerWrapper = new PerFieldAnalyzerWrapper(new StandardAnalyzer(), perFieldAnalyzer);
@@ -104,9 +105,8 @@ public class Indexer {
                 // e il campo colonna a cui associamo tutti i dati nelle varie celle
                 Document doc = new Document();
                 doc.add(new StringField("tabella", t.getId(), Field.Store.YES));
+                doc.add(new StringField("contesto", t.getContext(), Field.Store.YES));
                 doc.add(new StringField("nomecolonna", columnName, Field.Store.YES));
-                if(i == 179 || i == 180 || i == 178)
-                    System.out.println(columnName);
                 doc.add(new TextField("colonna", t.columnToString(columnName), Field.Store.NO));
                 start = System.nanoTime();
                 System.out.println(i++);
