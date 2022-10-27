@@ -37,6 +37,8 @@ import static org.ddd.Utility.INDEX_PATH;
 
 public class Indexer {
 
+
+
     public static void main(String[] args) {
         indexDocs(INDEX_PATH, CORPUS_PATH);
     }
@@ -61,31 +63,6 @@ public class Indexer {
     }
 
     private static void indexDocs(Directory dirIndex, String corpusPath, Codec codec) throws Exception{
-        // Table analyzer
-        Analyzer tableAnalyzer = new StandardAnalyzer();
-        /* ColumnData analyzer :
-        *  Tokenizer = PatternTokenizer che tokenizza dividendo i token tramite ";;"
-        *  TokenFilter = LowerCaseFilter
-        */
-        Analyzer columnDataAnalyzer = CustomAnalyzer.builder()
-                .withTokenizer(PatternTokenizerFactory.class, "pattern", "\\;;", "group", "-1")
-                .addTokenFilter(LowerCaseFilterFactory.class)
-                .build();
-
-        // Aggiunto una mappa di <field,analyzer> per passarla all'indexWriter
-        Map<String, Analyzer> perFieldAnalyzer = new HashMap<>();
-        perFieldAnalyzer.put("tabella", tableAnalyzer);
-        perFieldAnalyzer.put("contesto", tableAnalyzer);
-        perFieldAnalyzer.put("nomecolonna", tableAnalyzer);
-        perFieldAnalyzer.put("colonna", columnDataAnalyzer);
-        Analyzer analyzerWrapper = new PerFieldAnalyzerWrapper(new StandardAnalyzer(), perFieldAnalyzer);
-
-        IndexWriterConfig idxWriterConfig = new IndexWriterConfig(analyzerWrapper);
-        // Setto il codec per avere un indice leggibile
-        if(codec != null)
-            idxWriterConfig.setCodec(codec);
-        IndexWriter indexWriter = new IndexWriter(dirIndex, idxWriterConfig);
-        indexWriter.deleteAll();
 
         // Eseguo il parser dei documenti json nel corpus
         JsonParser parser = new JsonParser();
@@ -95,50 +72,48 @@ public class Indexer {
         System.out.println("Parsing time: " + parsingTime + "ns");
         saveTablesInfo(tables);
 
-        int maxCoreAvailable = Runtime.getRuntime().availableProcessors();
-        ThreadPoolExecutor texec = (ThreadPoolExecutor) Executors.newFixedThreadPool(maxCoreAvailable);
-
-        ThreadFactory tfact = texec.getThreadFactory();
+        int maxCoreAvailable = Runtime.getRuntime().availableProcessors(); //numero core disponibili
 
         int numTables = tables.size();
-        System.out.println("Numero tabelle: " + numTables);
-        System.out.println("Numero core disponibili: " + maxCoreAvailable);
-        int tables2thread = numTables / maxCoreAvailable;
-        int resto = numTables % maxCoreAvailable;
-        System.out.println("Numero di tabelle per thread: " + tables2thread);
-        System.out.println("Resto: " + resto);
+        // tanti core usabili quanti quelli disponibili o un core per ogni tabella (se ho meno tabelle dei core disponibili)
+        int coreToUse = Math.min(maxCoreAvailable, numTables);
+        ThreadIndexer[] threads = new ThreadIndexer[coreToUse]; // uso il minimo dei thread necessari (uno per tabella o tutti quelli disponibili)
 
-        int idxLastTableGroup = tables2thread;
-        int i = 0;
+        // Creo le directory che dovranno essere usate dai singoli core per scriverci l'indice
+        String[] dirIdxs = new String[coreToUse];
+        for (int i=0; i<coreToUse; i++) {
+            String dir_i = Utility.TEST_INDEX_TEST_PATH + Utility.PREFIX_IDX + i + "/"; // "../index/idx_i/"
+            System.out.println("dirIdxs[" + i + "] = " + dir_i);
+            dirIdxs[i] = dir_i;
+        }
+//        System.out.println("Numero tabelle: " + numTables);
+//        System.out.println("Numero core disponibili: " + maxCoreAvailable);
+        int tables2thread = numTables / maxCoreAvailable; // numero di tabelle da assegnare ad ogni core
+        int r = numTables % maxCoreAvailable; // resto della divisione tra numero di tabelle e numero core disponibili
+//        System.out.println("Numero di tabelle per thread: " + tables2thread);
+//        System.out.println("Resto: " + r);
+
         long indexingTime = 0;
-        while(idxLastTableGroup!=tables.size()) {
-            System.out.println("i: " + i);
-            System.out.println("idxLast: " + idxLastTableGroup);
-            if(idxLastTableGroup + resto == tables.size()) {
-                List<Table> tableToIndex = tables.subList(idxLastTableGroup, idxLastTableGroup+resto);
-                ThreadIndexer tidx = new ThreadIndexer(tableToIndex, indexWriter);
-                Thread t = tfact.newThread(tidx);
-                System.out.println("Thread id: " + t.getId());
-                long delta = System.nanoTime();
-                t.start();
-                delta = System.nanoTime() - delta;
-                indexingTime += delta;
-                break;
-            }
-            System.out.println("SubTable [" + i + ", " + idxLastTableGroup + "]");
-            List<Table> tableToIndex = tables.subList(i, idxLastTableGroup);
-            i = idxLastTableGroup;
-            idxLastTableGroup += tables2thread;
-            ThreadIndexer tidx = new ThreadIndexer(tableToIndex, indexWriter);
-            Thread t = tfact.newThread(tidx);
-            System.out.println("Thread id: " + t.getId());
+        int lb; //indice della prima tabella nella porzione corrente da indicizzare
+        int ub = 0; //indice ultima tabella della porzione corrente da indicizzare
+        for(int i=0; i < coreToUse; i++){
+            lb = ub;
+            // spalmo il resto "r" su tutte le porzioni => aumenta la dimensione delle prime i porzioni (ove i < r)
+            ub += tables2thread + (i < r ? 1 : 0);
+//            System.out.println("SubTable [" + lb + ", " + ub + "]");
+            // prendo la sotto lista di tabelle da indicizzare
+            List<Table> tableToIndex = tables.subList(lb, ub);
+            threads[i] = new ThreadIndexer(tableToIndex, dirIdxs[i], codec);
+//            System.out.println("Thread id: " + i);
             long delta = System.nanoTime();
-            t.start();
+            threads[i].run();
             delta = System.nanoTime() - delta;
             indexingTime += delta;
         }
-        System.out.println("Indexing time: " + indexingTime + "ns");
-//        indexWriter.close();
+        for(Thread t : threads) {
+            t.join();
+        }
+//        System.out.println("Indexing time: " + indexingTime + "ns");
     }
 
     private static void saveTablesInfo(List<Table> tables) throws IOException {

@@ -13,15 +13,18 @@ import java.io.StringWriter;
 import java.util.ResourceBundle;
 
 public class IndexerTest {
-    private static String TEST_JSON_TABLE_PATH = "tables_trunc.json";
-    private static String TEST_INDEX_TEST_PATH = "../index_test/";
 
     @BeforeAll
     public static void setup(){
-        Indexer.indexDocs(TEST_INDEX_TEST_PATH, TEST_JSON_TABLE_PATH);
+        Indexer.indexDocs(Utility.TEST_INDEX_TEST_PATH, Utility.TEST_JSON_TABLE_PATH);
     }
 
     @Test
+    public void tvoid(){
+
+    }
+
+//    @Test
     public void testPatternTokenizer() throws Exception{
 
         Analyzer testAnalyzer = CustomAnalyzer.builder()
