@@ -4,9 +4,9 @@ package org.ddd;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.*;
+import org.ddd.concurrency.MultithreadIndexSearcher;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.jupiter.api.AfterAll;
 
 import java.io.IOException;
 import java.util.Collections;

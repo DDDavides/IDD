@@ -2,10 +2,9 @@ package org.ddd;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.queryparser.xml.builders.BooleanQueryBuilder;
 import org.apache.lucene.search.*;
+import org.ddd.concurrency.MultithreadIndexSearcher;
 
-import java.io.IOException;
 import java.util.*;
 
 public class MergeList {

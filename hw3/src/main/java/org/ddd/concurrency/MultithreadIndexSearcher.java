@@ -1,7 +1,8 @@
-package org.ddd;
+package org.ddd.concurrency;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.search.Query;
+import org.ddd.Utility;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,15 +25,15 @@ public class MultithreadIndexSearcher {
         File[] dirs = indexesDir.listFiles(pathname -> pathname.getName().contains(Utility.PREFIX_IDX));
         if (dirs == null) { throw new RuntimeException(); }
 
-        // ottengo il numero massimo di core del processore
-        this.coresNumber = Runtime.getRuntime().availableProcessors();
+        // ottengo il numero massimo di core del processore (-1 per mantenere il MainThread funzionante)
+        this.coresNumber = Runtime.getRuntime().availableProcessors() - 1;
         int dirLen = dirs.length;                                   // numero di indici
 
         this.totalCoresUsed = Math.min(coresNumber, dirLen);        // core effettivamente utilizzati
 
         int step = dirLen / this.totalCoresUsed;                    // numero di indici per core (minimo uno)
         int r = dirLen % this.totalCoresUsed;                       // resto della distribuzione di 'step'-indici su 'this.totalCoresUsed'-core
-        this.paths = new ArrayList<>(this.totalCoresUsed);    // array dei searcher per ogni core
+        this.paths = new ArrayList<>(this.totalCoresUsed);          // array dei searcher per ogni core
 
         System.out.println("totalCoresUsed = " + totalCoresUsed);
         System.out.println("step = " + step);
@@ -76,13 +77,16 @@ public class MultithreadIndexSearcher {
             boolean check = true;
             for (ThreadSearcher t : threads)
                 check = check && !t.isAlive();
-            System.out.print("\r" + animation[i]);
+
+            System.out.print("\rSearching " + animation[i]);
             System.out.flush();
+            i++;
 
             isFinished = check;
-            i = (i+1) % animation.length;
+            i = i % animation.length;
         }
-        System.out.println();
+        System.out.print("\rResults :   \n");
+        System.out.flush();
 
         for(ThreadSearcher t : threads) {
             result.addAll(t.getValue());
