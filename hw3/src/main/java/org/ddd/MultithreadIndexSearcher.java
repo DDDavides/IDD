@@ -1,25 +1,19 @@
 package org.ddd;
 
 import org.apache.lucene.document.Document;
-import org.apache.lucene.index.DirectoryReader;
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.MultiReader;
-import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.store.FSDirectory;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
 
 public class MultithreadIndexSearcher {
 
-    private ArrayList<Path[]> paths;
-    private int coresNumber;
-    private int totalCoresUsed;
+    private final ArrayList<Path[]> paths;
+    private final int coresNumber;
+    private final int totalCoresUsed;
 
 
     public MultithreadIndexSearcher(String indexesPath) {
@@ -36,7 +30,7 @@ public class MultithreadIndexSearcher {
 
         this.totalCoresUsed = Math.min(coresNumber, dirLen);        // core effettivamente utilizzati
 
-        int step = dirLen / this.totalCoresUsed;                    // numero di incici per core (minimo 1)
+        int step = dirLen / this.totalCoresUsed;                    // numero di indici per core (minimo uno)
         int r = dirLen % this.totalCoresUsed;                       // resto della distribuzione di 'step'-indici su 'this.totalCoresUsed'-core
         this.paths = new ArrayList<>(this.totalCoresUsed);    // array dei searcher per ogni core
 
@@ -75,7 +69,7 @@ public class MultithreadIndexSearcher {
 //      controllo lo stato dei thread
         boolean isFinished = false;
         String[] animation = {"\\", "|", "/", "-", "|", "/"};
-        System.out.println("");
+        System.out.println();
         int i = 0;
         while (!isFinished) {
 
@@ -83,15 +77,17 @@ public class MultithreadIndexSearcher {
             for (ThreadSearcher t : threads)
                 check = check && !t.isAlive();
             System.out.print("\r" + animation[i]);
-            i = (i+1) % animation.length;
             System.out.flush();
 
             isFinished = check;
+            i = (i+1) % animation.length;
         }
+        System.out.println();
 
         for(ThreadSearcher t : threads) {
             result.addAll(t.getValue());
         }
+
 
         return result;
     }

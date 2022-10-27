@@ -60,8 +60,8 @@ public class MergeList {
     }
 
     private static List<Document> search(String element) throws IOException {
-        List<Document> documents = new ArrayList<>();
-        TotalHitCountCollector collector = new TotalHitCountCollector();
+//        List<Document> documents = new ArrayList<>();
+//        TotalHitCountCollector collector = new TotalHitCountCollector();
         BooleanQuery booleanQuery = new BooleanQuery.Builder()
                 .add(new TermQuery(new Term("colonna", element)), BooleanClause.Occur.MUST).
                 build();
