@@ -1,43 +1,50 @@
 package org.ddd;
 
 import org.apache.lucene.document.Document;
-import org.apache.lucene.index.QueryTimeout;
+import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.MultiReader;
 import org.apache.lucene.search.*;
-import org.apache.lucene.search.similarities.Lambda;
+import org.apache.lucene.store.FSDirectory;
 
-import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 class ThreadSearcher extends Thread {
     private IndexSearcher searcher;
     private Query query;
-    private List<Document> result;
+    private List<Document> value;
 
-    public ThreadSearcher(IndexSearcher searcher, Query query) {
-        this.searcher = searcher;
+    public ThreadSearcher(Query query, Path ...indexes) throws IOException {
         this.query = query;
-        this.result = new ArrayList<>();
+        IndexReader[] readers = new IndexReader[indexes.length];
+        for(int i = 0; i < indexes.length; i++) {
+            readers[i] = DirectoryReader.open(FSDirectory.open(indexes[i]));
+        }
+        MultiReader multiReader = new MultiReader(readers);
+        this.searcher = new IndexSearcher(multiReader);
+
+        this.value = new ArrayList<>();
     }
-    public List<Document> getResult() {
-        return this.result;
+    public List<Document> getValue() {
+        return this.value;
     }
     @Override
     public void run() {
-//        TotalHitCountCollector collector = new TotalHitCountCollector();
-        System.out.println("Eseguo la Query:");
+        TotalHitCountCollector collector = new TotalHitCountCollector();
         try {
-//            searcher.search(query, collector);
-//            System.out.println("hits = " + collector.getTotalHits());
-            TopDocs topDocs = searcher.search(query, 1000000);
-            for(ScoreDoc scoreDoc : topDocs.scoreDocs) {
-                Document doc = searcher.doc(scoreDoc.doc);
-//                System.out.println(doc.get("tabella"));
-                this.result.add(doc);
+            searcher.search(query, collector);
+            System.out.println("hits = " + collector.getTotalHits());
+            TopDocs topDocs = searcher.search(query, collector.getTotalHits());
 
+            for(int i = 0; i < topDocs.scoreDocs.length; i++) {
+                Document doc = searcher.doc(topDocs.scoreDocs[i].doc);
+                System.out.println(doc.get("tabella"));
+                System.out.println(doc.get("contesto"));
+
+                this.value.add(doc);
             }
         } catch (Exception e)
         {
