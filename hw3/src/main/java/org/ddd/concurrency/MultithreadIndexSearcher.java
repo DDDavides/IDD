@@ -26,7 +26,7 @@ public class MultithreadIndexSearcher {
         File[] dirs = indexesDir.listFiles(pathname -> pathname.getName().contains(Utility.PREFIX_IDX));
         if (dirs == null) { throw new RuntimeException(); }
 
-        // ottengo il numero massimo di core del processore (-1 per mantenere il MainThread funzionante)
+        // ottengo il numero massimo di core del processore (-1 per mantenere attivo il MainThread)
         this.coresNumber = Runtime.getRuntime().availableProcessors() - 1;
         int dirLen = dirs.length;                                   // numero di indici
 
@@ -36,9 +36,7 @@ public class MultithreadIndexSearcher {
         int r = dirLen % this.totalCoresUsed;                       // resto della distribuzione di 'step'-indici su 'this.totalCoresUsed'-core
         this.paths = new ArrayList<>(this.totalCoresUsed);          // array dei searcher per ogni core
 
-        System.out.println("totalCoresUsed = " + totalCoresUsed);
-        System.out.println("step = " + step);
-        System.out.println("r = " + r);
+        System.out.println("Numero dei core in uso : " + totalCoresUsed);
 
         // assegno gli indici ai vari core
         int ub = 0;     // limite superiore per l'assegnazione
@@ -70,7 +68,7 @@ public class MultithreadIndexSearcher {
 
 //      controllo lo stato dei thread
         boolean isFinished = false;
-        String[] animation = {"\\", "|", "/", "-", "|", "/"};
+        String[] animation = {"\\", "|", "/", "-"};
         System.out.println();
         int i = 0;
         while (!isFinished) {
@@ -79,15 +77,15 @@ public class MultithreadIndexSearcher {
             for (ThreadSearcher t : threads)
                 check = check && !t.isAlive();
 
-            System.out.print("\rSearching " + animation[i]);
-            System.out.flush();
-            Thread.sleep(100);
-            i++;
-
             isFinished = check;
+
+            System.out.print("\rCercando " + animation[i]);
+            System.out.flush();
+            Thread.sleep(200);
+            i++;
             i = i % animation.length;
         }
-        System.out.print("\rResults :   \n");
+        System.out.print("\rRisultati :   \n");
         System.out.flush();
 
         for(ThreadSearcher t : threads) {

@@ -34,8 +34,11 @@ public class MergeList {
         for (String element : columnElements) {
             qBuilder.add(new TermQuery(new Term ("colonna", element)), BooleanClause.Occur.SHOULD);
         }
+        long start = System.currentTimeMillis();
         documents = searcher.search(qBuilder.build());
+        long end = System.currentTimeMillis();
 
+        System.out.println("Documenti ripresi in " + (end-start) + "ms");
         // popola la mappa con le colonne ritornate
         // tra la query e la colonna
         // riempi la mappa colonna termini contenuti in base all'overlap
