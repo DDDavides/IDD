@@ -1,5 +1,6 @@
 package org.ddd.concurrency;
 
+import com.sun.tools.javac.Main;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.search.Query;
 import org.ddd.Utility;
@@ -57,7 +58,7 @@ public class MultithreadIndexSearcher {
     }
 
 
-    public List<Document> search(Query query) throws IOException {
+    public List<Document> search(Query query) throws IOException, InterruptedException {
         List<Document> result = new ArrayList<>();
         ThreadSearcher[] threads = new ThreadSearcher[this.totalCoresUsed];
 
@@ -80,6 +81,7 @@ public class MultithreadIndexSearcher {
 
             System.out.print("\rSearching " + animation[i]);
             System.out.flush();
+            Thread.sleep(100);
             i++;
 
             isFinished = check;
