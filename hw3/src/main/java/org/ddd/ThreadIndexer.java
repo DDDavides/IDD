@@ -73,11 +73,11 @@ public class ThreadIndexer extends Thread {
         for(Table t : this.tb2idx){
 //            System.out.println("Running over Table " + t.getId());
             // Per ogni colonna della tabella t
-            System.out.println("Tabella colonne: " + t.getColumns2dataColumn().keySet());
+//            System.out.println("Tabella colonne: " + t.getColumns2dataColumn().keySet());
             for(String columnName : t.getColumns2dataColumn().keySet()) {
                 // creo un documento contente l'id della tabella associata alla colonna
                 // e il campo colonna a cui associamo tutti i dati nelle varie celle
-                System.out.println("\tColumn: " + columnName);
+//                System.out.println("\tColumn: " + columnName);
                 Document doc = new Document();
                 doc.add(new StringField("tabella", t.getId(), Field.Store.YES));
                 doc.add(new StringField("contesto", t.getContext(), Field.Store.YES));

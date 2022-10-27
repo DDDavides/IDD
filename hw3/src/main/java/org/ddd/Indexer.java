@@ -32,8 +32,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 
-import static org.ddd.Utility.CORPUS_PATH;
-import static org.ddd.Utility.INDEX_PATH;
+import static org.ddd.Utility.*;
 
 public class Indexer {
 
@@ -82,8 +81,8 @@ public class Indexer {
         // Creo le directory che dovranno essere usate dai singoli core per scriverci l'indice
         String[] dirIdxs = new String[coreToUse];
         for (int i=0; i<coreToUse; i++) {
-            String dir_i = Utility.TEST_INDEX_TEST_PATH + Utility.PREFIX_IDX + i + "/"; // "../index/idx_i/"
-            System.out.println("dirIdxs[" + i + "] = " + dir_i);
+            String dir_i = Utility.INDEX_PATH + Utility.PREFIX_IDX + i + "/"; // "../index/idx_i/"
+//            System.out.println("dirIdxs[" + i + "] = " + dir_i);
             dirIdxs[i] = dir_i;
         }
 //        System.out.println("Numero tabelle: " + numTables);
@@ -96,6 +95,8 @@ public class Indexer {
         long indexingTime = 0;
         int lb; //indice della prima tabella nella porzione corrente da indicizzare
         int ub = 0; //indice ultima tabella della porzione corrente da indicizzare
+        indexingTime = System.nanoTime();
+        System.out.println("Inizio indicizzazione");
         for(int i=0; i < coreToUse; i++){
             lb = ub;
             // spalmo il resto "r" su tutte le porzioni => aumenta la dimensione delle prime i porzioni (ove i < r)
@@ -105,15 +106,16 @@ public class Indexer {
             List<Table> tableToIndex = tables.subList(lb, ub);
             threads[i] = new ThreadIndexer(tableToIndex, dirIdxs[i], codec);
 //            System.out.println("Thread id: " + i);
-            long delta = System.nanoTime();
+//            long delta = System.nanoTime();
             threads[i].run();
-            delta = System.nanoTime() - delta;
-            indexingTime += delta;
+//            delta = System.nanoTime() - delta;
+//            indexingTime += delta;
         }
+        indexingTime = System.nanoTime() - indexingTime;
+        System.out.println("Indexing time: " + indexingTime + "ns");
         for(Thread t : threads) {
             t.join();
         }
-//        System.out.println("Indexing time: " + indexingTime + "ns");
     }
 
     private static void saveTablesInfo(List<Table> tables) throws IOException {

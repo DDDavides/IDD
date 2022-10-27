@@ -9,8 +9,8 @@ import java.util.*;
 
 public class MergeList {
 
-    private static IndexSearcher searcher;
-    public MergeList(IndexSearcher searcher){
+    private static MultithreadIndexSearcher searcher;
+    public MergeList(MultithreadIndexSearcher searcher){
         this.searcher = searcher;
     }
     /**
@@ -65,14 +65,14 @@ public class MergeList {
         BooleanQuery booleanQuery = new BooleanQuery.Builder()
                 .add(new TermQuery(new Term("colonna", element)), BooleanClause.Occur.MUST).
                 build();
-        searcher.search(booleanQuery, collector);
-        TopDocs docs = searcher.search(booleanQuery, collector.getTotalHits());
-        //popola la mappa con le colonne ritornate
-        for(int i = 0; i < docs.scoreDocs.length; i++) {
-            ScoreDoc scoreDoc = docs.scoreDocs[i];
-            Document doc = searcher.doc(scoreDoc.doc);
-            documents.add(doc);
-        }
-        return documents;
+        return searcher.search(booleanQuery);
+//        TopDocs docs = searcher.search(booleanQuery, collector.getTotalHits());
+//        //popola la mappa con le colonne ritornate
+//        for(int i = 0; i < docs.scoreDocs.length; i++) {
+//            ScoreDoc scoreDoc = docs.scoreDocs[i];
+//            Document doc = searcher.doc(scoreDoc.doc);
+//            documents.add(doc);
+//        }
+//        return documents;
     }
 }

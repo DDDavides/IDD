@@ -27,7 +27,7 @@ public class MultithreadIndexSearcher {
         File indexesDir = new File(indexesPath);
 
         // ottengo la lista degli indici
-        File[] dirs = indexesDir.listFiles(pathname -> pathname.getName().contains("idx_"));
+        File[] dirs = indexesDir.listFiles(pathname -> pathname.getName().contains(Utility.PREFIX_IDX));
         if (dirs == null) { throw new RuntimeException(); }
 
         // ottengo il numero massimo di core del processore
