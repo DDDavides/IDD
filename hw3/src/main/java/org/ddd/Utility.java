@@ -5,14 +5,13 @@ import java.util.*;
 public class Utility {
     public static final String STATS_DIR_PATH = "../stats/";
     public static final String STATS_FILE = STATS_DIR_PATH + "stats.json";
-
     public static final String INDEX_PATH = "../index/";
     public static final String PREFIX_IDX = "idx_";
     public static final String CODEC = "org.apache.lucene.codecs.simpletext.SimpleTextCodec";
     public static final String TEST_INDEX_TEST_PATH = "../index_test/";
     public static final String TEST_JSON_TABLE_PATH = "tables_trunc.json";
     public static final String COLUMN_DATA_SEPARATOR = ";;";
-
+    public static int CORE_TO_USE = 4;
 
     // solo per Moli
 //    public static final String CORPUS_PATH = "/Volumes/ssd esterno/IDD/tables.json";
