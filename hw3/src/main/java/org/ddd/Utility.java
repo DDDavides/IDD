@@ -14,8 +14,8 @@ public class Utility {
     public static int CORE_TO_USE = 4;
 
     // solo per Moli
-//    public static final String CORPUS_PATH = "/Volumes/ssd esterno/IDD/tables.json";
-    public  static String CORPUS_PATH = "../corpus/tables.json";
+    public static final String CORPUS_PATH = "/Volumes/ssd esterno/IDD/tables.json";
+//    public  static String CORPUS_PATH = "../corpus/tables.json";
 //   public  static String CORPUS_PATH = "./tables_trunc.json";
 //    public  static String CORPUS_PATH = "./test.json";
 
