@@ -2,7 +2,12 @@ package org.ddd.concurrency;
 
 import com.sun.tools.javac.Main;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.MultiReader;
+import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.store.FSDirectory;
 import org.ddd.Utility;
 
 import java.io.File;
@@ -12,13 +17,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MultithreadIndexSearcher {
-
-    private final ArrayList<Path[]> paths;
     private final int coresNumber;
     private final int totalCoresUsed;
 
+    private IndexSearcher[] searchers;
 
-    public MultithreadIndexSearcher(String indexesPath) {
+
+    public MultithreadIndexSearcher(String indexesPath) throws IOException {
         // apro la directory degli indici
         File indexesDir = new File(indexesPath);
 
@@ -34,8 +39,7 @@ public class MultithreadIndexSearcher {
 
         int step = dirLen / this.totalCoresUsed;                    // numero di indici per core (minimo uno)
         int r = dirLen % this.totalCoresUsed;                       // resto della distribuzione di 'step'-indici su 'this.totalCoresUsed'-core
-        this.paths = new ArrayList<>(this.totalCoresUsed);          // array dei searcher per ogni core
-
+        this.searchers = new IndexSearcher[this.totalCoresUsed];    // array dei searcher per ogni core
         System.out.println("Numero dei core in uso : " + totalCoresUsed);
 
         // assegno gli indici ai vari core
@@ -46,52 +50,52 @@ public class MultithreadIndexSearcher {
             lb = ub;
             // calcolo del nuovo limite superiore
             ub += step + (i < r ? 1 : 0);
-            Path[] indexes = new Path[ub-lb];
+            IndexReader[] readers = new IndexReader[ub-lb];
             for (int j = lb, k = 0; j < ub; j++, k++) {
-                indexes[k] = dirs[j].toPath();
+                readers[k] = DirectoryReader.open(FSDirectory.open(dirs[i].toPath()));
             }
-            this.paths.add(indexes);
+            MultiReader mr = new MultiReader(readers);
+            searchers[i] = new IndexSearcher(mr);
+
         }
 
     }
 
+//
+//    public void search(Query query) {
+//        threads = new ThreadSearcher[this.totalCoresUsed];
+//
+//        // lancio la query su più thread
+//        for (int i = 0; i < this.totalCoresUsed; i++) {
+//            threads[i] = new ThreadSearcher(query, searchers[i]);
+//            threads[i].start();
+//        }
+//    }
+//
+//    public boolean
+//
+//
+//    public List<Document> getResult() {
+//        ArrayList<Document> documents = new ArrayList<>();
+//        for(ThreadSearcher t : threads) {
+//            documents.addAll(t.getValue());
+//        }
+//    }
 
-    public List<Document> search(Query query) throws IOException, InterruptedException {
+    public List<Document> search(Query query) throws InterruptedException {
         List<Document> result = new ArrayList<>();
         ThreadSearcher[] threads = new ThreadSearcher[this.totalCoresUsed];
 
         // lancio la query su più thread
         for (int i = 0; i < this.totalCoresUsed; i++) {
-            threads[i] = new ThreadSearcher(query, this.paths.get(i));
+            threads[i] = new ThreadSearcher(query, searchers[i]);
             threads[i].start();
         }
 
-//      controllo lo stato dei thread
-        boolean isFinished = false;
-        String[] animation = {"\\", "|", "/", "-"};
-        System.out.println();
-        int i = 0;
-        while (!isFinished) {
-
-            boolean check = true;
-            for (ThreadSearcher t : threads)
-                check = check && !t.isAlive();
-
-            isFinished = check;
-
-            System.out.print("\rCercando " + animation[i]);
-            System.out.flush();
-            Thread.sleep(200);
-            i++;
-            i = i % animation.length;
-        }
-        System.out.print("\rRisultati :   \n");
-        System.out.flush();
-
         for(ThreadSearcher t : threads) {
+            t.join();
             result.addAll(t.getValue());
         }
-
 
         return result;
     }
