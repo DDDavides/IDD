@@ -1,25 +1,21 @@
-package org.ddd;
+package org.ddd.concurrency;
 
+import com.sun.tools.javac.Main;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.index.DirectoryReader;
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.MultiReader;
-import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.store.FSDirectory;
+import org.ddd.Utility;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
 
 public class MultithreadIndexSearcher {
 
-    private ArrayList<Path[]> paths;
-    private int coresNumber;
-    private int totalCoresUsed;
+    private final ArrayList<Path[]> paths;
+    private final int coresNumber;
+    private final int totalCoresUsed;
 
 
     public MultithreadIndexSearcher(String indexesPath) {
@@ -30,19 +26,17 @@ public class MultithreadIndexSearcher {
         File[] dirs = indexesDir.listFiles(pathname -> pathname.getName().contains(Utility.PREFIX_IDX));
         if (dirs == null) { throw new RuntimeException(); }
 
-        // ottengo il numero massimo di core del processore
-        this.coresNumber = Runtime.getRuntime().availableProcessors();
+        // ottengo il numero massimo di core del processore (-1 per mantenere attivo il MainThread)
+        this.coresNumber = Runtime.getRuntime().availableProcessors() - 1;
         int dirLen = dirs.length;                                   // numero di indici
 
         this.totalCoresUsed = Math.min(coresNumber, dirLen);        // core effettivamente utilizzati
 
-        int step = dirLen / this.totalCoresUsed;                    // numero di incici per core (minimo 1)
+        int step = dirLen / this.totalCoresUsed;                    // numero di indici per core (minimo uno)
         int r = dirLen % this.totalCoresUsed;                       // resto della distribuzione di 'step'-indici su 'this.totalCoresUsed'-core
-        this.paths = new ArrayList<>(this.totalCoresUsed);    // array dei searcher per ogni core
+        this.paths = new ArrayList<>(this.totalCoresUsed);          // array dei searcher per ogni core
 
-        System.out.println("totalCoresUsed = " + totalCoresUsed);
-        System.out.println("step = " + step);
-        System.out.println("r = " + r);
+        System.out.println("Numero dei core in uso : " + totalCoresUsed);
 
         // assegno gli indici ai vari core
         int ub = 0;     // limite superiore per l'assegnazione
@@ -62,7 +56,7 @@ public class MultithreadIndexSearcher {
     }
 
 
-    public List<Document> search(Query query) throws IOException {
+    public List<Document> search(Query query) throws IOException, InterruptedException {
         List<Document> result = new ArrayList<>();
         ThreadSearcher[] threads = new ThreadSearcher[this.totalCoresUsed];
 
@@ -74,24 +68,30 @@ public class MultithreadIndexSearcher {
 
 //      controllo lo stato dei thread
         boolean isFinished = false;
-        String[] animation = {"\\", "|", "/", "-", "|", "/"};
-        System.out.println("");
+        String[] animation = {"\\", "|", "/", "-"};
+        System.out.println();
         int i = 0;
         while (!isFinished) {
 
             boolean check = true;
             for (ThreadSearcher t : threads)
                 check = check && !t.isAlive();
-            System.out.print("\r" + animation[i]);
-            i = (i+1) % animation.length;
-            System.out.flush();
 
             isFinished = check;
+
+            System.out.print("\rCercando " + animation[i]);
+            System.out.flush();
+            Thread.sleep(200);
+            i++;
+            i = i % animation.length;
         }
+        System.out.print("\rRisultati :   \n");
+        System.out.flush();
 
         for(ThreadSearcher t : threads) {
             result.addAll(t.getValue());
         }
+
 
         return result;
     }

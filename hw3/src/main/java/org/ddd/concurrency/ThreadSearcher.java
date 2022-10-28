@@ -1,4 +1,4 @@
-package org.ddd;
+package org.ddd.concurrency;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
@@ -36,19 +36,16 @@ class ThreadSearcher extends Thread {
         TotalHitCountCollector collector = new TotalHitCountCollector();
         try {
             searcher.search(query, collector);
-            System.out.println("hits = " + collector.getTotalHits());
+            if(collector.getTotalHits() <= 0) return;
+
             TopDocs topDocs = searcher.search(query, collector.getTotalHits());
 
-            for(int i = 0; i < topDocs.scoreDocs.length; i++) {
-                Document doc = searcher.doc(topDocs.scoreDocs[i].doc);
-                System.out.println(doc.get("tabella"));
-                System.out.println(doc.get("contesto"));
-
-                this.value.add(doc);
+            for (ScoreDoc sc : topDocs.scoreDocs) {
+                this.value.add(searcher.doc(sc.doc));
             }
-        } catch (Exception e)
-        {
-            System.out.println("Errore in ricerca!");
+
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
         }
 
     }

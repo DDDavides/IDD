@@ -4,19 +4,16 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonStreamParser;
-import com.google.gson.internal.LinkedTreeMap;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.Reader;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 public class JsonParser {
 
-    private Gson gson;
+    private final Gson gson;
     public JsonParser() {
         gson = new GsonBuilder().registerTypeAdapter(Table.class, new JsonTableDeserializer()).create();
     }
@@ -35,8 +32,6 @@ public class JsonParser {
         return tables;
     }
 
-
-    // TODO: da scrivere
     public List<Table> parse(String stringPath) throws FileNotFoundException {
         Reader reader = new FileReader(stringPath);
         return parse(reader);
