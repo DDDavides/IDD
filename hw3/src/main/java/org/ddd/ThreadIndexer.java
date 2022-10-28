@@ -82,7 +82,7 @@ public class ThreadIndexer extends Thread {
                 doc.add(new StringField("tabella", t.getId(), Field.Store.YES));
                 doc.add(new StringField("contesto", t.getContext(), Field.Store.YES));
                 doc.add(new StringField("nomecolonna", columnName, Field.Store.YES));
-                doc.add(new TextField("colonna", t.columnToString(columnName), Field.Store.NO));
+                doc.add(new TextField("colonna", t.columnToString(columnName), Field.Store.YES));
                 try {
 //                    System.out.println("Trying adding doc");
                     this.writer.addDocument(doc);

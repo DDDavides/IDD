@@ -59,7 +59,7 @@ public class Table {
     public String columnToString(String columnName){
         StringBuilder strBuilder = new StringBuilder();
         for(String data : columns2dataColumn.get(columnName)){
-            strBuilder.append(data+";;");
+            strBuilder.append(data+Utility.COLUMN_DATA_SEPARATOR);
         }
         return strBuilder.toString();
     }

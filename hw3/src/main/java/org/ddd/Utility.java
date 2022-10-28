@@ -11,11 +11,12 @@ public class Utility {
     public static final String CODEC = "org.apache.lucene.codecs.simpletext.SimpleTextCodec";
     public static final String TEST_INDEX_TEST_PATH = "../index_test/";
     public static final String TEST_JSON_TABLE_PATH = "tables_trunc.json";
+    public static final String COLUMN_DATA_SEPARATOR = ";;";
 
 
     // solo per Moli
 //    public static final String CORPUS_PATH = "/Volumes/ssd esterno/IDD/tables.json";
-    public  static String CORPUS_PATH = "../corpus/100000.json";
+    public  static String CORPUS_PATH = "../corpus/tables.json";
 //   public  static String CORPUS_PATH = "./tables_trunc.json";
 //    public  static String CORPUS_PATH = "./test.json";
 
