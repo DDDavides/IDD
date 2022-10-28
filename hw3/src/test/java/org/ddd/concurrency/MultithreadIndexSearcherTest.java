@@ -18,7 +18,7 @@ public class MultithreadIndexSearcherTest {
     private static MultithreadIndexSearcher tis;
 
     @Before
-    public void init() {
+    public void init() throws IOException {
         tis = new MultithreadIndexSearcher("../index/");
     }
 
@@ -32,7 +32,7 @@ public class MultithreadIndexSearcherTest {
     }
 
     @Test
-    public void testBooleanquery() throws IOException, InterruptedException {
+    public void testBooleanquery() throws InterruptedException {
         Query query = new BooleanQuery.Builder()
                 .add(new TermQuery(new Term("colonna", "write")), BooleanClause.Occur.MUST)
                 .build();

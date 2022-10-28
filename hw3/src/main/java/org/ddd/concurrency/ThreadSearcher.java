@@ -17,20 +17,16 @@ class ThreadSearcher extends Thread {
     private Query query;
     private List<Document> value;
 
-    public ThreadSearcher(Query query, Path ...indexes) throws IOException {
+    public ThreadSearcher(Query query, IndexSearcher searcher) {
         this.query = query;
-        IndexReader[] readers = new IndexReader[indexes.length];
-        for(int i = 0; i < indexes.length; i++) {
-            readers[i] = DirectoryReader.open(FSDirectory.open(indexes[i]));
-        }
-        MultiReader multiReader = new MultiReader(readers);
-        this.searcher = new IndexSearcher(multiReader);
-
+        this.searcher = searcher;
         this.value = new ArrayList<>();
     }
+
     public List<Document> getValue() {
         return this.value;
     }
+
     @Override
     public void run() {
         TotalHitCountCollector collector = new TotalHitCountCollector();

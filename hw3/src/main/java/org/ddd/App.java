@@ -18,7 +18,30 @@ public class App {
             String[] stringhe = {"katab","naktubu","taktubna","taktubu","taktubāni","taktubīna","taktubūna","write","yaktubna","yaktubu","yaktubāni","yaktubūna","ʼaktubu"};
 
             System.out.println("Effettuo la query\n");
-            System.out.println(ml.topKOverlapMerge(5, new ArrayList<>(List.of(stringhe))));
+            Thread t = new Thread(() -> {
+                String[] animation = {" ", ".", "..", "..."};
+                int i = 0;
+                while (true) {
+
+                    System.out.print("\rCercando" + animation[i]);
+                    System.out.flush();
+                    try {
+                        Thread.sleep(300);
+                    } catch (InterruptedException e) {
+                        return;
+                    }
+                    i++;
+                    i = i % animation.length;
+                }
+            });
+            t.start();
+            List<String> topKOverlapMerge =  ml.topKOverlapMerge(5, new ArrayList<>(List.of(stringhe)));
+            t.interrupt();
+            System.out.println("\r" + topKOverlapMerge);
+
+
+
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
