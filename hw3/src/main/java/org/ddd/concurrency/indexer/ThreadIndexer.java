@@ -1,4 +1,4 @@
-package org.ddd;
+package org.ddd.concurrency.indexer;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.core.LowerCaseFilterFactory;
@@ -15,6 +15,7 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.ddd.Table;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -25,27 +26,22 @@ import java.util.Map;
 
 public class ThreadIndexer extends Thread {
 
-    private final Codec codec;
     private List<Table> tb2idx;
-    private String dirIdxPath;
     private  IndexWriter writer;
 
     public ThreadIndexer(List<Table> tb2idx, String dirIdxPath, Codec codec) throws Exception{
         this.tb2idx = tb2idx;
-        this.codec = codec;
-        this.dirIdxPath = dirIdxPath;
+
         Path idxPath = Paths.get(dirIdxPath);
         Directory dir = FSDirectory.open(idxPath);
 
-        // Table analyzer
+        // Table analyzer : StandardAnalyzer
         Analyzer tableAnalyzer = new StandardAnalyzer();
         /* ColumnData analyzer :
          *  Tokenizer = PatternTokenizer che tokenizza dividendo i token tramite ";;"
          *  TokenFilter = LowerCaseFilter
          */
-        Analyzer columnDataAnalyzer = null;
-
-        columnDataAnalyzer = CustomAnalyzer.builder()
+        Analyzer columnDataAnalyzer = CustomAnalyzer.builder()
                     .withTokenizer(PatternTokenizerFactory.class, "pattern", "\\;;", "group", "-1")
                     .addTokenFilter(LowerCaseFilterFactory.class)
                     .build();
@@ -71,38 +67,33 @@ public class ThreadIndexer extends Thread {
     @Override
     public void run(){
         for(Table t : this.tb2idx){
-//            System.out.println("Running over Table " + t.getId());
             // Per ogni colonna della tabella t
-//            System.out.println("Tabella colonne: " + t.getColumns2dataColumn().keySet());
             for(String columnName : t.getColumns2dataColumn().keySet()) {
                 // creo un documento contente l'id della tabella associata alla colonna
                 // e il campo colonna a cui associamo tutti i dati nelle varie celle
-//                System.out.println("\tColumn: " + columnName);
                 Document doc = new Document();
                 doc.add(new StringField("tabella", t.getId(), Field.Store.YES));
                 doc.add(new StringField("contesto", t.getContext(), Field.Store.YES));
                 doc.add(new StringField("nomecolonna", columnName, Field.Store.YES));
-                doc.add(new TextField("colonna", t.columnToString(columnName), Field.Store.NO));
+                doc.add(new TextField("colonna", t.columnToString(columnName), Field.Store.YES));
                 try {
-//                    System.out.println("Trying adding doc");
                     this.writer.addDocument(doc);
-//                    System.out.println("Succeded");
                 } catch (IOException e) {
-                    throw new RuntimeException("Failed adding a doc in the index (Thread=" + this.getId() + ")\n");
+                    System.out.println("Failed adding a doc in the index (Thread=" + this.getId() + ")");
                 }
             }
         }
         try {
-//            System.out.println("Trying to commit");
             this.writer.commit();
-//            System.out.println("Committed");
         } catch (IOException e) {
-            throw new RuntimeException("Fail to commit documents (Thread=" + this.getId() + ")\n");
+            System.out.println("Fail to commit documents (Thread=" + this.getId() + ")");
+            System.out.println(e.getMessage());
         }
         try {
             this.writer.close();
         } catch (IOException e) {
-            throw new RuntimeException("Fail to close Index writer (Thread=" + this.getId() + ")\n");
+            System.out.println("Fail to close Index writer (Thread=" + this.getId() + ")\n");
+            System.out.println(e.getMessage());
         }
     }
 }

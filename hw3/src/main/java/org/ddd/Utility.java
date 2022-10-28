@@ -5,17 +5,17 @@ import java.util.*;
 public class Utility {
     public static final String STATS_DIR_PATH = "../stats/";
     public static final String STATS_FILE = STATS_DIR_PATH + "stats.json";
-
     public static final String INDEX_PATH = "../index/";
     public static final String PREFIX_IDX = "idx_";
     public static final String CODEC = "org.apache.lucene.codecs.simpletext.SimpleTextCodec";
     public static final String TEST_INDEX_TEST_PATH = "../index_test/";
     public static final String TEST_JSON_TABLE_PATH = "tables_trunc.json";
-
+    public static final String COLUMN_DATA_SEPARATOR = ";;";
+    public static int CORE_TO_USE = 4;
 
     // solo per Moli
-    public static final String CORPUS_PATH = "/Volumes/ssd esterno/IDD/tables.json";
-//    public  static String CORPUS_PATH = "../corpus/100000.json";
+//    public static final String CORPUS_PATH = "/Volumes/ssd esterno/IDD/tables.json";
+    public  static String CORPUS_PATH = "../corpus/tables.json";
 //   public  static String CORPUS_PATH = "./tables_trunc.json";
 //    public  static String CORPUS_PATH = "./test.json";
 
@@ -28,13 +28,13 @@ public class Utility {
     public static HashMap<String, Integer> sortByValue(HashMap<String, Integer> map)
     {
         // Crea una lista di elementi con i valori della mappa
-        List<HashMap.Entry<String, Integer> > list =
+        List<Map.Entry<String, Integer> > list =
                 new LinkedList<>(map.entrySet());
 
         // Ordina la lista
-        Collections.sort(list, new Comparator<HashMap.Entry<String, Integer> >() {
-            public int compare(HashMap.Entry<String, Integer> o1,
-                               HashMap.Entry<String, Integer> o2)
+        Collections.sort(list, new Comparator<Map.Entry<String, Integer> >() {
+            public int compare(Map.Entry<String, Integer> o1,
+                               Map.Entry<String, Integer> o2)
             {
                 return -(o1.getValue()).compareTo(o2.getValue());
             }
@@ -42,7 +42,7 @@ public class Utility {
 
         // Metti i dati ordinati della lista in una hashmap
         HashMap<String, Integer> temp = new LinkedHashMap<>();
-        for (HashMap.Entry<String, Integer> aa : list) {
+        for (Map.Entry<String, Integer> aa : list) {
             temp.put(aa.getKey(), aa.getValue());
         }
         return temp;
