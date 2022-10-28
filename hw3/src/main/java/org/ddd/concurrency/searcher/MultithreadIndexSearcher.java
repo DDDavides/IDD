@@ -34,7 +34,7 @@ public class MultithreadIndexSearcher {
         int dirLen = dirs.length;                                   // numero di indici
 
         this.totalCoresUsed = Math.min(coresNumber, dirLen);        // core effettivamente utilizzati
-        //this.totalCoresUsed = 2;
+        //this.totalCoresUsed = 8;
 
         int step = dirLen / this.totalCoresUsed;                    // numero di indici per core (minimo uno)
         int r = dirLen % this.totalCoresUsed;                       // resto della distribuzione di 'step'-indici su 'this.totalCoresUsed'-core
@@ -59,27 +59,6 @@ public class MultithreadIndexSearcher {
         }
 
     }
-
-//
-//    public void search(Query query) {
-//        threads = new ThreadSearcher[this.totalCoresUsed];
-//
-//        // lancio la query su più thread
-//        for (int i = 0; i < this.totalCoresUsed; i++) {
-//            threads[i] = new ThreadSearcher(query, searchers[i]);
-//            threads[i].start();
-//        }
-//    }
-//
-//    public boolean
-//
-//
-//    public List<Document> getResult() {
-//        ArrayList<Document> documents = new ArrayList<>();
-//        for(ThreadSearcher t : threads) {
-//            documents.addAll(t.getValue());
-//        }
-//    }
 
     public List<Document> search(Query query) throws InterruptedException {
         List<Document> result = new ArrayList<>();
