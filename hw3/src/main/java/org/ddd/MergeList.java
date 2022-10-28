@@ -3,14 +3,15 @@ package org.ddd;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.*;
+import org.ddd.concurrency.searcher.MultithreadIndexSearcher;
 
 import java.io.IOException;
 import java.util.*;
 
 public class MergeList {
 
-    private static IndexSearcher searcher;
-    public MergeList(IndexSearcher searcher){
+    private static MultithreadIndexSearcher searcher;
+    public MergeList(MultithreadIndexSearcher searcher){
         this.searcher = searcher;
     }
     /**
@@ -22,65 +23,63 @@ public class MergeList {
      * @return
      * @throws Exception
      */
-    public Map<String, Integer> topKOverlapMerge(int topk, List<String> columnElements) throws Exception {
-        //se il numero di elementi richiesti topk è minore
-        //o uguale di 0 lancia un eccezione
-        if(topk <= 0){
+    public List<String> topKOverlapMerge(int topk, List<String> columnElements) throws Exception {
+        // se il numero di elementi richiesti topk è minore
+        // o uguale di 0 lancia un eccezione
+        if (topk <= 0) {
             throw new Exception();
         }
-        //riempi la mappa colonna termini contenuti in base all'overlap
-        //tra la query e la colonna
-        Map<String, Integer> column2frequency = new HashMap<>();
-        // per ogni elemento nella colonna di query
-        for(String element: columnElements){
-            // cerca tutti i documenti su cui quella colonna fa hit
+
+//        BooleanQuery.Builder qBuilder = new BooleanQuery.Builder();
+//        for (String element : columnElements) {
+//            qBuilder.add(new TermQuery(new Term("colonna", element)), BooleanClause.Occur.SHOULD);
+//        }
+//        long start = System.currentTimeMillis();
+//        documents = searcher.search(qBuilder.build());
+//        long end = System.currentTimeMillis();
+//
+//        System.out.println("Documenti ripresi in " + (end - start) + "ms");
+
+
+        // popola la mappa con le colonne ritornate
+        // tra la query e la colonna
+        // riempi la mappa colonna termini contenuti in base all'overlap
+        HashMap<String, Integer> column2frequency = new HashMap<>();
+        long searchTime = 0;
+        for (String element : columnElements) {
+            searchTime -= System.currentTimeMillis();
             List<Document> documents = search(element);
+            searchTime += System.currentTimeMillis();
             //popola la mappa con le colonne ritornate
-            for(Document doc : documents){
+            for (Document doc : documents) {
+                //se la colonna è già presente nella mappa
                 String nomecolonna = doc.get("nomecolonna");
                 nomecolonna += "_" + doc.get("tabella");
-                //se la colonna è già presente nella mappa
-                if (column2frequency.containsKey(nomecolonna)){
+                if (column2frequency.containsKey(nomecolonna)) {
                     column2frequency.put(nomecolonna, column2frequency.get(nomecolonna) + 1);
-                }else {
+                } else {
                     column2frequency.put(nomecolonna, 1);
                 }
+
             }
         }
+        System.out.println("\rTempo totale di ricerca: " + (searchTime/1000) + "s\n");
         //ordina la mappa per i valori che fanno più overlap
         column2frequency = Utility.sortByValue(column2frequency);
-        Map<String, Integer> topKoverlapElements = new HashMap<>();
         //ritorna solo le prime topk colonne
-        ArrayList<String> columns = new ArrayList<>(column2frequency.keySet());
-        for(int i = 0; i < topk && i < columns.size(); i++){
-            topKoverlapElements.put(columns.get(i), column2frequency.get(columns.get(i)));
-        }
-        return Utility.sortByValue(topKoverlapElements);
+        List<String> columns = new ArrayList<>(column2frequency.keySet());
+        return columns.subList(0, Math.min(topk, columns.size()));
     }
 
-    private static List<Document> search(String element) throws IOException {
-        // crea la term query per l'elemento della colonna
-        Query booleanQuery = new BooleanQuery.Builder()
+    private static List<Document> search(String element) throws IOException, InterruptedException {
+        BooleanQuery booleanQuery = new BooleanQuery.Builder()
                 .add(new TermQuery(new Term("colonna", element)), BooleanClause.Occur.MUST).
                 build();
 
-        // prendi le totalhits del termine della colonna da cercare
-        TotalHitCountCollector collector = new TotalHitCountCollector();
-        System.out.println("Searching documents for: " + element);
-        searcher.search(booleanQuery, collector);
-        int totalHits = collector.getTotalHits();
-        if(totalHits == 0){
-            booleanQuery = new MatchNoDocsQuery();
-            totalHits = 1;
-        }
-        // cerca tutti i documenti che fanno hit
-        TopDocs docs = searcher.search(booleanQuery, totalHits);
-        List<Document> documents = new ArrayList<>();
-        for(int i = 0; i < docs.scoreDocs.length; i++) {
-            ScoreDoc scoreDoc = docs.scoreDocs[i];
-            Document doc = searcher.doc(scoreDoc.doc);
-            documents.add(doc);
-        }
-        return documents;
+        return searcher.search(booleanQuery);
     }
+
+
+
 }
+
