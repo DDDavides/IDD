@@ -15,11 +15,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MultithreadIndexSearcher {
-    private final int coresNumber;
-    private final int totalCoresUsed;
-
+    private int coresNumber;
+    private int totalCoresUsed;
     private IndexSearcher[] searchers;
-
 
     public MultithreadIndexSearcher(String indexesPath) throws IOException {
         // apro la directory degli indici
@@ -31,6 +29,7 @@ public class MultithreadIndexSearcher {
 
         // ottengo il numero massimo di core del processore (-1 per mantenere attivo il MainThread)
         this.coresNumber = Runtime.getRuntime().availableProcessors() - 1;
+//        this.coresNumber = 1;
         int dirLen = dirs.length;                                   // numero di indici
 
         this.totalCoresUsed = Math.min(coresNumber, dirLen);        // core effettivamente utilizzati

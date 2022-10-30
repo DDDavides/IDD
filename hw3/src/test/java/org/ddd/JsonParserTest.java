@@ -32,9 +32,9 @@ public class JsonParserTest {
 
     @Test
     public void testParse() throws FileNotFoundException {
-        jsonParser = new JsonParser();
         Reader reader = new FileReader("./test.json");
-        Table t = jsonParser.parse(reader).get(0);
+        jsonParser = new JsonParser(reader);
+        Table t = jsonParser.parse().get(0);
 
         System.out.println(t);
 
