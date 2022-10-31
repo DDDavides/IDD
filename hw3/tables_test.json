@@ -1,0 +1,604 @@
+{
+    "_id": {
+        "$oid": "0"
+    },
+    "cells": [
+    {
+        "isHeader": true,
+        "Coordinates": {
+            "row": 0,
+            "column": 0
+        },
+        "cleanedText": "citta'"
+    },
+    {
+        "isHeader": true,
+        "Coordinates": {
+            "row": 0,
+            "column": 1
+        },
+        "cleanedText": "quartiere"
+
+    },
+    {
+        "isHeader": true,
+        "Coordinates": {
+            "row": 0,
+            "column": 2
+        },
+        "cleanedText": "numero"
+
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 1,
+            "column": 0
+        },
+        "cleanedText": "Roma"
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 1,
+            "column": 1
+        },
+        "cleanedText": "Flaminio"
+
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 1,
+            "column": 2
+        },
+        "cleanedText": "1"
+
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 2,
+            "column": 0
+        },
+        "cleanedText": "Roma"
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 2,
+            "column": 1
+        },
+        "cleanedText": "Parioli"
+
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 2,
+            "column": 2
+        },
+        "cleanedText": "2"
+
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 3,
+            "column": 0
+        },
+        "cleanedText": "Roma"
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 3,
+            "column": 1
+        },
+        "cleanedText": "Europa"
+
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 3,
+            "column": 2
+        },
+        "cleanedText": "32"
+
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 4,
+            "column": 0
+        },
+        "cleanedText": "Roma"
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 4,
+            "column": 1
+        },
+        "cleanedText": "Ostiense"
+
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 4,
+            "column": 2
+        },
+        "cleanedText": "X"
+
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 5,
+            "column": 0
+        },
+        "cleanedText": "Napoli"
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 5,
+            "column": 1
+        },
+        "cleanedText": "Scampia"
+
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 5,
+            "column": 2
+        },
+        "cleanedText": "21"
+
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 6,
+            "column": 0
+        },
+        "cleanedText": "Napoli"
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 6,
+            "column": 1
+        },
+        "cleanedText": "Miano"
+
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 6,
+            "column": 2
+        },
+        "cleanedText": "13"
+
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 7,
+            "column": 0
+        },
+        "cleanedText": "Napoli"
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 7,
+            "column": 1
+        },
+        "cleanedText": "Ponticelli"
+
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 7,
+            "column": 2
+        },
+        "cleanedText": "18"
+
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 8,
+            "column": 0
+        },
+        "cleanedText": "Torino"
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 8,
+            "column": 1
+        },
+        "cleanedText": "Vallette"
+
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 8,
+            "column": 2
+        },
+        "cleanedText": "16"
+
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 9,
+            "column": 0
+        },
+        "cleanedText": "Torino"
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 9,
+            "column": 1
+        },
+        "cleanedText": "Borgo Po"
+
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 9,
+            "column": 2
+        },
+        "cleanedText": "30"
+
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 10,
+            "column": 0
+        },
+        "cleanedText": "Torino"
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 10,
+            "column": 1
+        },
+        "cleanedText": "Crocetta"
+
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 10,
+            "column": 2
+        },
+        "cleanedText": "2"
+
+    }],
+    "referenceContext": "Quartieri",
+    "maxDimensions": {
+        "row": 10,
+        "column": 3
+    },
+    "headersCleaned": [
+        "citta'",
+        "quartiere",
+        "numero"
+    ]
+}
+{
+    "_id": {
+        "$oid": "1"
+    },
+    "cells": [
+    {
+        "isHeader": true,
+        "Coordinates": {
+            "row": 0,
+            "column": 0
+        },
+        "cleanedText": "giorno"
+    },
+    {
+        "isHeader": true,
+        "Coordinates": {
+            "row": 0,
+            "column": 1
+        },
+        "cleanedText": "mese"
+
+    },
+    {
+        "isHeader": true,
+        "Coordinates": {
+            "row": 0,
+            "column": 2
+        },
+        "cleanedText": "anno"
+
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 1,
+            "column": 0
+        },
+        "cleanedText": "1"
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 1,
+            "column": 1
+        },
+        "cleanedText": "1"
+
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 1,
+            "column": 2
+        },
+        "cleanedText": "1999"
+
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 2,
+            "column": 0
+        },
+        "cleanedText": "2"
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 2,
+            "column": 1
+        },
+        "cleanedText": "2"
+
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 2,
+            "column": 2
+        },
+        "cleanedText": "1999"
+
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 3,
+            "column": 0
+        },
+        "cleanedText": "3"
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 3,
+            "column": 1
+        },
+        "cleanedText": "3"
+
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 3,
+            "column": 2
+        },
+        "cleanedText": "1999"
+
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 4,
+            "column": 0
+        },
+        "cleanedText": "4"
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 4,
+            "column": 1
+        },
+        "cleanedText": "4"
+
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 4,
+            "column": 2
+        },
+        "cleanedText": "1999"
+
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 5,
+            "column": 0
+        },
+        "cleanedText": "5"
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 5,
+            "column": 1
+        },
+        "cleanedText": "5"
+
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 5,
+            "column": 2
+        },
+        "cleanedText": "1999"
+
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 6,
+            "column": 0
+        },
+        "cleanedText": "6"
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 6,
+            "column": 1
+        },
+        "cleanedText": "6"
+
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 6,
+            "column": 2
+        },
+        "cleanedText": "1999"
+
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 7,
+            "column": 0
+        },
+        "cleanedText": "7"
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 7,
+            "column": 1
+        },
+        "cleanedText": "7"
+
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 7,
+            "column": 2
+        },
+        "cleanedText": "1999"
+
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 8,
+            "column": 0
+        },
+        "cleanedText": "8"
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 8,
+            "column": 1
+        },
+        "cleanedText": "8"
+
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 8,
+            "column": 2
+        },
+        "cleanedText": "1999"
+
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 9,
+            "column": 0
+        },
+        "cleanedText": "9"
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 9,
+            "column": 1
+        },
+        "cleanedText": "9"
+
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 9,
+            "column": 2
+        },
+        "cleanedText": "1999"
+
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 10,
+            "column": 0
+        },
+        "cleanedText": "10"
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 10,
+            "column": 1
+        },
+        "cleanedText": "10"
+
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 10,
+            "column": 2
+        },
+        "cleanedText": "1999"
+
+    }],
+    "referenceContext": "giorno-mese-anno",
+    "maxDimensions": {
+        "row": 10,
+        "column": 3
+    },
+    "headersCleaned": [
+        "giorno",
+        "mese",
+        "anno"
+    ]
+}
