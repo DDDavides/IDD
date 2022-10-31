@@ -12,6 +12,7 @@ import org.ddd.concurrency.LoadingThread;
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.ddd.Utility.*;
@@ -51,8 +52,15 @@ public class MultiThreadIndexer {
         System.out.println("Inizio parsing dei documenti");
         Thread loading = new LoadingThread(new String[]{"", ".", "..", "..."}, "Sto parsando");
         loading.start();
-        List<Table> tables = parser.parse(corpusPath);
-        loading.interrupt();
+        List<Table> tables = null;
+        try{
+            tables = parser.parse(corpusPath);
+        }catch (Exception e){
+            System.out.println(e);
+            return;
+        }finally {
+            loading.interrupt();
+        }
         parsingTime = (System.nanoTime() - parsingTime)/1000000;
         System.out.println("\rParsing time: " + parsingTime + "ms");
         // salvataggio delle statistiche delle tabelle

@@ -47,9 +47,9 @@ public class MergeList {
         HashMap<String, Integer> column2frequency = new HashMap<>();
         long searchTime = 0;
         for (String element : columnElements) {
-            searchTime -= System.currentTimeMillis();
+            searchTime -= System.nanoTime();
             List<Document> documents = search(element);
-            searchTime += System.currentTimeMillis();
+            searchTime += System.nanoTime();
             //popola la mappa con le colonne ritornate
             for (Document doc : documents) {
                 //se la colonna è già presente nella mappa
@@ -63,7 +63,7 @@ public class MergeList {
 
             }
         }
-        System.out.println("\rTempo totale di ricerca: " + (searchTime/1000) + "s\n");
+        System.out.println("\rTempo totale di ricerca: " + (searchTime/1000000) + "ms\n");
         //ordina la mappa per i valori che fanno più overlap
         column2frequency = Utility.sortByValue(column2frequency);
         //ritorna solo le prime topk colonne
