@@ -602,3 +602,120 @@
         "anno"
     ]
 }
+{
+"_id": {
+    "$oid": "2"
+},
+"cells": [
+{
+    "isHeader": true,
+    "Coordinates": {
+        "row": 0,
+        "column": 0
+    },
+    "cleanedText": "nome"
+},
+{
+    "isHeader": true,
+    "Coordinates": {
+        "row": 0,
+        "column": 1
+    },
+    "cleanedText": "luogonascita"
+
+},
+{
+    "isHeader": false,
+    "Coordinates": {
+        "row": 1,
+        "column": 0
+    },
+    "cleanedText": "davide"
+},
+{
+    "isHeader": false,
+    "Coordinates": {
+        "row": 1,
+        "column": 1
+    },
+    "cleanedText": "Roma"
+
+},
+{
+    "isHeader": false,
+    "Coordinates": {
+        "row": 2,
+        "column": 0
+    },
+    "cleanedText": "francesco"
+},
+{
+    "isHeader": false,
+    "Coordinates": {
+        "row": 2,
+        "column": 1
+    },
+    "cleanedText": "Ostia"
+
+},
+{
+    "isHeader": false,
+    "Coordinates": {
+        "row": 3,
+        "column": 0
+    },
+    "cleanedText": "giuseppe"
+},
+{
+    "isHeader": false,
+    "Coordinates": {
+        "row": 3,
+        "column": 1
+    },
+    "cleanedText": "Tivoli"
+
+},
+{
+    "isHeader": false,
+    "Coordinates": {
+        "row": 4,
+        "column": 0
+    },
+    "cleanedText": "Luigi"
+},
+{
+    "isHeader": false,
+    "Coordinates": {
+        "row": 4,
+        "column": 1
+    },
+    "cleanedText": "Roma"
+
+},
+{
+    "isHeader": false,
+    "Coordinates": {
+        "row": 5,
+        "column": 0
+    },
+    "cleanedText": "Luca"
+},
+{
+    "isHeader": false,
+    "Coordinates": {
+        "row": 5,
+        "column": 1
+    },
+    "cleanedText": "Tivoli"
+
+},
+"referenceContext": "luoghinascitalazione",
+"maxDimensions": {
+    "row": 10,
+    "column": 3
+},
+"headersCleaned": [
+    "nome",
+    "luogonascita"
+]
+}
