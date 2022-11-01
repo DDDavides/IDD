@@ -1,5 +1,6 @@
 package org.ddd.concurrency.indexer;
 
+import com.google.gson.Gson;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.core.LowerCaseFilterFactory;
 import org.apache.lucene.analysis.custom.CustomAnalyzer;
@@ -14,7 +15,7 @@ import org.apache.lucene.store.FSDirectory;
 import org.ddd.Table;
 import org.ddd.Utility;
 
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -116,5 +117,40 @@ public class MultiThreadIndexer2 {
                 writer.close();
         }
         this.isClosed = true;
+    }
+
+
+    public static void saveTablesInfo(List<Table> tables) throws IOException {
+        boolean statsDirCreated = true;
+        boolean statsFileCreated = true;
+
+        // Creo la directory dove mettere il file stats
+        File statsDir = new File(Utility.STATS_DIR_PATH);
+        if(!statsDir.exists()){
+            statsDirCreated = statsDir.mkdir();
+        }
+
+        // Creo il file stats nella sua directory
+        File f = new File(Utility.STATS_FILE);
+        if(!f.exists()) {
+            statsFileCreated = f.createNewFile();
+        }
+
+        if(!statsDirCreated) {
+            throw new IOException("Stats directory not created\n");
+        }
+
+        if(!statsFileCreated){
+            throw new IOException("Stats file not created\n");
+        }
+
+        Gson gson = new Gson();
+        Writer writer = new BufferedWriter(new FileWriter(Utility.STATS_FILE, true));
+        for (Table t : tables) {
+            gson.toJson(t, writer);
+            writer.write("\n");
+        }
+
+        writer.close();
     }
 }
