@@ -18,7 +18,7 @@ public class Searcher {
 
             //per ogni termine della query cerca tutte le colonne che fanno hit
             MergeList ml = new MergeList(searcher);
-            String[] stringhe = {"katab","naktubu","taktubna","taktubu","taktubāni","taktubīna","taktubūna","write","yaktubna","yaktubu","yaktubāni","yaktubūna","ʼaktubu"};
+            String[] stringhe = {"katab","naktubu","taktubna","taktubu","taktubāni","taktubīna","taktubūna","write","yaktubna","yaktubu","yaktubāni","yaktubūna","ʼaktubu", "Pirlo", "Write", "támeen"};
 
             System.out.println("\rEffettuo la query\n");
             loading = new LoadingThread(new String[]{"", ".", "..", "..."}, "Sto cercando");

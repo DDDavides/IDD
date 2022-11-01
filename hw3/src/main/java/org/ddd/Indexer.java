@@ -5,7 +5,9 @@ import org.apache.lucene.index.IndexWriter;
 import org.ddd.concurrency.LoadingThread;
 import org.ddd.concurrency.indexer.MultiThreadIndexer;
 import org.ddd.concurrency.indexer.MultiThreadIndexer2;
+import org.apache.commons.io.FileUtils;
 
+import java.io.File;
 import java.io.FileReader;
 import java.io.Reader;
 import java.util.List;
@@ -18,6 +20,7 @@ public class Indexer {
         MultiThreadIndexer mti = new MultiThreadIndexer(codec);
 
         Reader reader = new FileReader(Utility.CORPUS_PATH);
+        FileUtils.cleanDirectory(new File(Utility.INDEX_PATH));
         // Eseguo il parser dei documenti json nel corpus
         JsonParser parser = new JsonParser(reader);
         Thread loading = new LoadingThread(new String[]{"", ".", "..", "..."}, "Sto indicizzando");
