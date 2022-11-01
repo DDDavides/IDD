@@ -15,7 +15,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-public class MultithreadIndexSearcherTest {
+public class MultiThreadIndexSearcherTest {
     private static MultithreadIndexSearcher tis;
 
     @Before
@@ -24,11 +24,11 @@ public class MultithreadIndexSearcherTest {
     }
 
     @Test
-    public void testMatchNoDocsQuery() throws IOException, InterruptedException {
+    public void testMatchNoDocsQuery() throws InterruptedException {
         assertEquals(Collections.emptyList(), tis.search(new MatchNoDocsQuery()));
     }
     @Test
-    public void testMatchAllDocsQuery() throws IOException, InterruptedException {
+    public void testMatchAllDocsQuery() throws InterruptedException {
         assertNotEquals(Collections.emptyList(), tis.search(new MatchAllDocsQuery()));
     }
 

@@ -12,20 +12,50 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class JsonParser {
-
     private final Gson gson;
+    private JsonStreamParser jsonStreamParser;
+
     public JsonParser() {
-        gson = new GsonBuilder().registerTypeAdapter(Table.class, new JsonTableDeserializer()).create();
+        this.gson = new GsonBuilder().registerTypeAdapter(Table.class, new JsonTableDeserializer()).create();
     }
 
-    public List<Table> parse(Reader reader) {
+    public JsonParser(Reader reader) {
+        this.gson = new GsonBuilder().registerTypeAdapter(Table.class, new JsonTableDeserializer()).create();
+        this.jsonStreamParser = new JsonStreamParser(reader);
+    }
+
+    public JsonParser(String filePath) throws FileNotFoundException {
+        this.gson = new GsonBuilder().registerTypeAdapter(Table.class, new JsonTableDeserializer()).create();
+        Reader reader = new FileReader(filePath);
+        this.jsonStreamParser = new JsonStreamParser(reader);
+    }
+
+    public boolean hasnext() {
+        return this.jsonStreamParser.hasNext();
+    }
+
+    public List<Table> next(int limit) {
         List<Table> tables = new ArrayList<>();
-        JsonStreamParser jsp = new JsonStreamParser(reader);
-        while(jsp.hasNext()) {
-            JsonElement jsonElement = jsp.next();
+
+        for (int i = 0; i < limit && this.jsonStreamParser.hasNext(); i++) {
+            JsonElement jsonElement = this.jsonStreamParser.next();
+            if (jsonElement.isJsonObject()) {
+                tables.add(gson.fromJson(jsonElement, Table.class));
+            }
+
+        }
+        return tables;
+    }
+
+    public List<Table> parse() {
+        List<Table> tables = new ArrayList<>();
+
+        while(this.jsonStreamParser.hasNext()) {
+            JsonElement jsonElement = this.jsonStreamParser.next();
             if (jsonElement.isJsonObject()) {
                 Table table = gson.fromJson(jsonElement, Table.class);
                 tables.add(table);
+
             }
         }
 
@@ -34,6 +64,7 @@ public class JsonParser {
 
     public List<Table> parse(String stringPath) throws FileNotFoundException {
         Reader reader = new FileReader(stringPath);
-        return parse(reader);
+        this.jsonStreamParser = new JsonStreamParser(reader);
+        return parse();
     }
 }
