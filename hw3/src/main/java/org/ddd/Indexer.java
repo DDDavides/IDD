@@ -16,11 +16,11 @@ public class Indexer {
 
     public static void main(String[] args) throws Exception {
         Codec codec = (Codec) Class.forName(Utility.CODEC).newInstance();
+        FileUtils.cleanDirectory(new File(Utility.INDEX_PATH));
 //        MultiThreadIndexer2 mti = new MultiThreadIndexer2(Utility.INDEX_PATH, 10, codec);
         MultiThreadIndexer mti = new MultiThreadIndexer(codec);
 
         Reader reader = new FileReader(Utility.CORPUS_PATH);
-        FileUtils.cleanDirectory(new File(Utility.INDEX_PATH));
         // Eseguo il parser dei documenti json nel corpus
         JsonParser parser = new JsonParser(reader);
         Thread loading = new LoadingThread(new String[]{"", ".", "..", "..."}, "Sto indicizzando");
@@ -33,13 +33,13 @@ public class Indexer {
         long parsingTime = 0;
         while (parser.hasNext()) {
             parsingTime -= System.nanoTime();
-            tables = parser.next(1000);
+            tables = parser.next(Utility.TABLES_CHUNKS);
             parsingTime += System.nanoTime();
 
             indexingTime -= System.nanoTime();
             mti.indexDocs(tables);
             indexingTime += System.nanoTime();
-            mti.saveTablesInfo(tables);
+            //mti.saveTablesInfo(tables);
         }
         loading.interrupt();
 
