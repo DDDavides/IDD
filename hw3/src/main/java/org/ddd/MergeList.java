@@ -1,7 +1,16 @@
 package org.ddd;
 
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.core.KeywordTokenizer;
+import org.apache.lucene.analysis.core.KeywordTokenizerFactory;
+import org.apache.lucene.analysis.core.LowerCaseFilterFactory;
+import org.apache.lucene.analysis.custom.CustomAnalyzer;
+import org.apache.lucene.analysis.pattern.PatternTokenizerFactory;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.*;
 import org.ddd.concurrency.searcher.MultithreadIndexSearcher;
 
@@ -71,15 +80,14 @@ public class MergeList {
         return columns.subList(0, Math.min(topk, columns.size()));
     }
 
-    private static List<Document> search(String element) throws IOException, InterruptedException {
-        BooleanQuery booleanQuery = new BooleanQuery.Builder()
-                .add(new TermQuery(new Term("colonna", element)), BooleanClause.Occur.MUST).
-                build();
-
-        return searcher.search(booleanQuery);
+    private static List<Document> search(String element) throws IOException, InterruptedException, ParseException {
+        Analyzer columnDataAnalyzer = CustomAnalyzer.builder()
+                .withTokenizer(KeywordTokenizerFactory.class)
+                .addTokenFilter(LowerCaseFilterFactory.class)
+                .build();
+        QueryParser qp = new QueryParser("colonna" ,columnDataAnalyzer);
+        qp.setDefaultOperator(QueryParser.Operator.AND);
+        return searcher.search(qp.parse("\"" + element + "\""));
     }
-
-
-
 }
 

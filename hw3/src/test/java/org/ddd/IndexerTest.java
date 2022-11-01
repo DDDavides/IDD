@@ -19,7 +19,7 @@ public class IndexerTest {
 
     @BeforeAll
     public static void setup(){
-        MultiThreadIndexer.indexDocs(Utility.TEST_INDEX_TEST_PATH, Utility.TEST_JSON_TABLE_PATH);
+//        MultiThreadIndexer.indexDocs(Utility.TEST_JSON_TABLE_PATH);
     }
 
 //    @Test

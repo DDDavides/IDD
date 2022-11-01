@@ -288,6 +288,32 @@
         },
         "cleanedText": "2"
 
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 11,
+            "column": 0
+        },
+        "cleanedText": "La Spezia"
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 11,
+            "column": 1
+        },
+        "cleanedText": "nciuwdncosanfweo"
+
+    },
+    {
+        "isHeader": false,
+        "Coordinates": {
+            "row": 11,
+            "column": 2
+        },
+        "cleanedText": "2"
+
     }],
     "referenceContext": "Quartieri",
     "maxDimensions": {
@@ -708,8 +734,8 @@
     },
     "cleanedText": "Tivoli"
 
-},
-"referenceContext": "luoghinascitalazione",
+}],
+"referenceContext": "luoghinascitalazio",
 "maxDimensions": {
     "row": 10,
     "column": 3
