@@ -3,6 +3,7 @@ package org.ddd;
 import org.apache.lucene.codecs.Codec;
 import org.apache.lucene.index.IndexWriter;
 import org.ddd.concurrency.LoadingThread;
+import org.ddd.concurrency.indexer.MultiThreadIndexer;
 import org.ddd.concurrency.indexer.MultiThreadIndexer2;
 
 import java.io.FileReader;
@@ -13,8 +14,9 @@ public class Indexer {
 
     public static void main(String[] args) throws Exception {
         Codec codec = (Codec) Class.forName(Utility.CODEC).newInstance();
-        MultiThreadIndexer2 mti = new MultiThreadIndexer2(Utility.INDEX_PATH, 10, codec);
-        new IndexWriter(null, null);
+//        MultiThreadIndexer2 mti = new MultiThreadIndexer2(Utility.INDEX_PATH, 10, codec);
+        MultiThreadIndexer mti = new MultiThreadIndexer(codec);
+
         Reader reader = new FileReader(Utility.CORPUS_PATH);
         // Eseguo il parser dei documenti json nel corpus
         JsonParser parser = new JsonParser(reader);
@@ -40,6 +42,6 @@ public class Indexer {
 
         System.out.println("\rIndexing time: " + indexingTime/1000000000 + "s");
         System.out.println("Parsing time: " + parsingTime/1000000000 + "s");
-        mti.close();
+//        mti.close();
     }
 }

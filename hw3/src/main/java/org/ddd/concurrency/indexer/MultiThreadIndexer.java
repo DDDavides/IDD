@@ -18,46 +18,17 @@ import static org.ddd.Utility.*;
 
 public class MultiThreadIndexer {
 
+    private Codec codec;
 
-
-    public static void main(String[] args) {
-        indexDocs(INDEX_PATH, CORPUS_PATH);
+    public MultiThreadIndexer (Codec codec) {
+        this.codec = codec;
     }
 
     /**
      * Indicizza i documenti di un corpus in una cartella dove memorizzare l'indice
-     * @param indexPath percorso della cartella dove memorizzare l'indice
-     * @param corpusPath percorso del corpus di documenti da indicizzare
+     * @param tables le tabelle da indicizzare
      */
-    public static void indexDocs(String indexPath, String corpusPath){
-        Path idxPath = Paths.get(indexPath);
-        try {
-            Directory dir = FSDirectory.open(idxPath);
-            try {
-                indexDocs(corpusPath, (Codec) Class.forName(Utility.CODEC).newInstance());
-            } catch (Exception ex) {
-                System.out.println("Failed during indexing documents\n" + ex.getMessage());
-            }
-        } catch (IOException e) {
-            System.out.println("Failed to open index directory " + idxPath + "\n" + e.getMessage());
-        }
-    }
-
-    private static void indexDocs(String corpusPath, Codec codec) throws Exception{
-
-        // Eseguo il parser dei documenti json nel corpus
-        JsonParser parser = new JsonParser();
-        long parsingTime = System.nanoTime();
-        System.out.println("Inizio parsing dei documenti");
-        Thread loading = new LoadingThread(new String[]{"", ".", "..", "..."}, "Sto parsando");
-        loading.start();
-        List<Table> tables = parser.parse(corpusPath);
-        loading.interrupt();
-        parsingTime = (System.nanoTime() - parsingTime)/1000000;
-        System.out.println("\rParsing time: " + parsingTime + "ms");
-        // salvataggio delle statistiche delle tabelle
-        saveTablesInfo(tables);
-
+    public void indexDocs(List<Table> tables) throws Exception{
         int maxCoreAvailable = Runtime.getRuntime().availableProcessors(); //numero core disponibili
 
         int numTables = tables.size();
@@ -76,31 +47,23 @@ public class MultiThreadIndexer {
         int tables2thread = numTables / maxCoreAvailable; // numero di tabelle da assegnare ad ogni core
         int r = numTables % maxCoreAvailable; // resto della divisione tra numero di tabelle e numero core disponibili
 
-        long indexingTime = 0;
         int lb; //indice della prima tabella nella porzione corrente da indicizzare
         int ub = 0; //indice ultima tabella della porzione corrente da indicizzare
-        indexingTime = System.nanoTime();
-        System.out.println("Inizio indicizzazione");
-        loading = new LoadingThread(new String[]{"", ".", "..", "..."}, "Sto indicizzando");
-        loading.start();
         for(int i=0; i < coreToUse; i++){
             lb = ub;
             // spalmo il resto "r" su tutte le porzioni => aumenta la dimensione delle prime i porzioni (ove i < r)
             ub += tables2thread + (i < r ? 1 : 0);
             // prendo la sotto lista di tabelle da indicizzare
             List<Table> tableToIndex = tables.subList(lb, ub);
-            threads[i] = new ThreadIndexer(tableToIndex, dirIdxs[i], codec);
+            threads[i] = new ThreadIndexer(tableToIndex, dirIdxs[i], this.codec);
             threads[i].start();
         }
         for(Thread t : threads) {
             t.join();
         }
-        loading.interrupt();
-        indexingTime = (System.nanoTime() - indexingTime)/1000000;
-        System.out.println("\rIndexing time: " + indexingTime + "ms");
     }
 
-    private static void saveTablesInfo(List<Table> tables) throws IOException {
+    public static void saveTablesInfo(List<Table> tables) throws IOException {
         boolean statsDirCreated = true;
         boolean statsFileCreated = true;
 

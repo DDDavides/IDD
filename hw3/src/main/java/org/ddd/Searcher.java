@@ -6,7 +6,7 @@ import org.ddd.concurrency.searcher.MultithreadIndexSearcher;
 import java.util.ArrayList;
 import java.util.List;
 
-public class App {
+public class Searcher {
     public static void main(String[] args) {
         MultithreadIndexSearcher searcher;
         try {
