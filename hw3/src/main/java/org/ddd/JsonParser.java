@@ -30,7 +30,7 @@ public class JsonParser {
         this.jsonStreamParser = new JsonStreamParser(reader);
     }
 
-    public boolean hasnext() {
+    public boolean hasNext() {
         return this.jsonStreamParser.hasNext();
     }
 
