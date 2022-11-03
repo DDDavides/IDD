@@ -60,8 +60,6 @@ public class ThreadIndexer extends Thread {
             config.setCodec(codec);
 
         this.writer = new IndexWriter(dir, config);
-        this.writer.deleteAll();
-
     }
 
     @Override

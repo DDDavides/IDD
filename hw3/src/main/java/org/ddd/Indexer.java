@@ -39,7 +39,7 @@ public class Indexer {
             indexingTime -= System.nanoTime();
             mti.indexDocs(tables);
             indexingTime += System.nanoTime();
-            //mti.saveTablesInfo(tables);
+            mti.saveTablesInfo(tables);
         }
         loading.interrupt();
 
