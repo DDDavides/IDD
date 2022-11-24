@@ -8,6 +8,6 @@
 from itemadapter import ItemAdapter
 
 
-class TutorialPipeline:
+class Hw5Pipeline:
     def process_item(self, item, spider):
         return item
