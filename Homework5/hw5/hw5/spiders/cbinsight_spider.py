@@ -18,9 +18,10 @@ class CbinsightSpider(scrapy.Spider):
     def parse_company(self, response):
         if response.status != 200:
             return
-        title = response.xpath('//*[@id="__next"]/main/div/div[2]/div/header/div[2]/div[1]/h1/text()').get()
+        title = response.xpath('(//h1/text())[1]').get()
         if title == None:
             print(response.url)
+        print(title)
         yield {
             'Title': title
         }
