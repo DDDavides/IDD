@@ -11,6 +11,7 @@ BOT_NAME = 'hw5'
 
 SPIDER_MODULES = ['hw5.spiders']
 NEWSPIDER_MODULE = 'hw5.spiders'
+LOG_LEVEL = 'INFO'
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
