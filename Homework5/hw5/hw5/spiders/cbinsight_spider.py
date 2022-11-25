@@ -1,8 +1,8 @@
 import scrapy
 
 class CbinsightSpider(scrapy.Spider):
-    name = "cbinsight"
-    allowed_domains = ['cbinsights.com']
+    name = 'cbinsight'
+    allowed_domains = ['www.cbinsights.com']
     start_urls = [
         'https://www.cbinsights.com/research-unicorn-companies'
     ]
@@ -11,14 +11,16 @@ class CbinsightSpider(scrapy.Spider):
     #Rules
 
     def parse(self, response):
-        all_companies = response.xpath('$x("//td/a[@href]")')
+        all_companies = response.xpath("//td/a[@href]/@href")
         for company in all_companies:
-            company_url = self.start_urls[0] + \
-                company.xpath('.//h3/a/@href').extract_first()
-            yield scrapy.Request(company_url, callback=self.parse_book)
+            yield scrapy.Request(company.get(), callback=self.parse_company)
         
-    def parse_book(self, response):
-        
+    def parse_company(self, response):
+        if response.status != 200:
+            return
+        title = response.xpath('//*[@id="__next"]/main/div/div[2]/div/header/div[2]/div[1]/h1/text()').get()
+        if title == None:
+            print(response.url)
         yield {
-            'Title': '//*[@id="__next"]/main/div/div[2]/div/header/div[2]/div[1]/h1'
+            'Title': title
         }
