@@ -1,4 +1,9 @@
 import scrapy
+import requests
+from bs4 import BeautifulSoup
+
+def myselector(tag):
+    return tag.name == 'td' and tag.findChildren('a')
 
 class CbinsightSpider(scrapy.Spider):
     name = 'cbinsight'
@@ -8,20 +13,30 @@ class CbinsightSpider(scrapy.Spider):
     ]
     base_url = 'https://www.cbinsights.com/research-unicorn-companies'
 
-    #Rules
-
     def parse(self, response):
-        all_companies = response.xpath("//td/a[@href]/@href")
-        for company in all_companies:
-            yield scrapy.Request(company.get(), callback=self.parse_company)
+        bs = BeautifulSoup(response.text, 'lxml')
+        td = bs.find_all(myselector)
+        for a in td:
+            yield scrapy.Request(a.find('a')['href'], callback=self.parse_company)
         
     def parse_company(self, response):
-        if response.status != 200:
+        if response.status != requests.codes.ok:
             return
-        title = response.xpath('(//h1/text())[1]').get()
+        bs = BeautifulSoup(response.text, 'lxml')
+        title = bs.find('h1').getText()
+        h = bs.find_all('h2', {'class': 'text-sm text-black'})
+        founded, stage, totalRaised = None, None, None
+        for i in range(0, len(h)-1):
+            if i == 0:
+                founded = h[i].next_sibling.getText()
+            elif i == 1: 
+                stage = h[i].next_sibling.getText()
+            elif i == 2:
+                totalRaised = h[i].next_sibling.getText()
         if title == None:
             print(response.url)
         print(title)
-        yield {
-            'Title': title
-        }
+        print(founded)
+        print(stage)
+        print(totalRaised)
+
