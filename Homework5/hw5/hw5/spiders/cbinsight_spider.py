@@ -1,9 +1,7 @@
 import scrapy
 import requests
 from bs4 import BeautifulSoup
-
-def myselector(tag):
-    return tag.name == 'td' and tag.findChildren('a')
+import pandas as pd
 
 class CbinsightSpider(scrapy.Spider):
     name = 'cbinsight'
@@ -15,6 +13,32 @@ class CbinsightSpider(scrapy.Spider):
 
     def parse(self, response):
         bs = BeautifulSoup(response.text, 'lxml')
+        self.extract_data_from_table(bs)
+        self.extract_data_of_company(bs)
+
+    def extract_data_from_table(self, bs):
+        trow = bs.find_all('tr')
+        table = pd.DataFrame({
+            "Name": [],
+            "Valuation": [],
+            "Date Joined": [],
+            "Country": [],
+            "City": [],
+            "Industry": [],
+            "Investors": []
+        })
+        for i in range(1, len(trow)):
+            children_row = trow[i].findChildren('td', recursive=False)
+            row = []
+            for j in range(0, len(children_row)):
+                if i == 1 and j == 0:
+                    print(table[i])
+                d = children_row[j]
+            #     row.append(d.getText())
+            # table.append(row)
+            # print(table)
+
+    def extract_data_of_company(self, bs):
         td = bs.find_all(myselector)
         for a in td:
             yield scrapy.Request(a.find('a')['href'], callback=self.parse_company)
@@ -35,8 +59,7 @@ class CbinsightSpider(scrapy.Spider):
                 totalRaised = h[i].next_sibling.getText()
         if title == None:
             print(response.url)
-        print(title)
-        print(founded)
-        print(stage)
-        print(totalRaised)
 
+
+def myselector(tag):
+    return tag.name == 'td' and tag.findChildren('a')
