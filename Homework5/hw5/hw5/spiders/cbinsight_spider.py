@@ -1,7 +1,8 @@
 import scrapy
 import requests
 from bs4 import BeautifulSoup
-import pandas as pd
+import csv
+
 
 class CbinsightSpider(scrapy.Spider):
     name = 'cbinsight'
@@ -14,34 +15,31 @@ class CbinsightSpider(scrapy.Spider):
     def parse(self, response):
         bs = BeautifulSoup(response.text, 'lxml')
         self.extract_data_from_table(bs)
-        self.extract_data_of_company(bs)
 
     def extract_data_from_table(self, bs):
         trow = bs.find_all('tr')
-        table = pd.DataFrame({
-            "Name": [],
-            "Valuation": [],
-            "Date Joined": [],
-            "Country": [],
-            "City": [],
-            "Industry": [],
-            "Investors": []
-        })
+        print(len(trow))
+        table = []
         for i in range(1, len(trow)):
             children_row = trow[i].findChildren('td', recursive=False)
-            row = []
-            for j in range(0, len(children_row)):
-                if i == 1 and j == 0:
-                    print(table[i])
-                d = children_row[j]
-            #     row.append(d.getText())
-            # table.append(row)
-            # print(table)
-
-    def extract_data_of_company(self, bs):
-        td = bs.find_all(myselector)
-        for a in td:
-            yield scrapy.Request(a.find('a')['href'], callback=self.parse_company)
+            table.append({
+                "Name": children_row[0].getText(),
+                "Valuation": children_row[1].getText(),
+                "Date Joined": children_row[2].getText(),
+                "Country": children_row[3].getText(),
+                "City": children_row[4].getText(),
+                "Industry": children_row[5].getText(),
+                "Investors": children_row[6].getText()
+            })
+            # if j == 0:
+            #     yield scrapy.Request(children_row[j].find('a')['href'], callback=self.parse_company)
+        csv_file = './dataset/cbinsight.csv'
+        csv_columns = ['Name','Valuation',"Date Joined","Country","City","Industry", "Investors"]
+        with open(csv_file, 'w') as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=csv_columns)
+            writer.writeheader()
+            for data in table:
+                writer.writerow(data)
         
     def parse_company(self, response):
         if response.status != requests.codes.ok:
