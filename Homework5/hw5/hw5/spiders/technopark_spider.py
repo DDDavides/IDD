@@ -13,7 +13,6 @@ class TechnoparkSpider(scrapy.Spider):
         meta = dict(
             playwright = True,
             playwright_page_methods = [
-                PageMethod('evaluate', "window.scrollBy(0, document.body.scrollHeight)"),
                 PageMethod("wait_for_selector", "div.cmpny-detail"),
             ],
             playwright_include_page = True,
@@ -25,26 +24,25 @@ class TechnoparkSpider(scrapy.Spider):
     #Rules
     async def parse(self, response):
         page = response.meta['playwright_page']
-        nEntry = 4
+        loadedEntry = 1
         maxEntry = 1000
-        for i in range(1, maxEntry // nEntry):
-            x = i * nEntry
-            await page.evaluate("window.scrollBy(0, document.body.scrollHeight)")
-            await page.wait_for_selector("div.cmpny-detail:nth-child({})".format(x))
+        for _ in range(maxEntry // loadedEntry):
+            await page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+            await page.wait_for_selector("div.cmpny-detail")
         
         html = await page.content()
         await page.close()
         s = scrapy.Selector(text=html)
 
         all_companies = s.xpath("//div[contains(@class,'cmpny-detail')]//a[@href][1]/@href")
-        for company in all_companies:
-            print(company)
-            yield scrapy.Request(self.base_url + company.get(), callback=self.parse_company)
         
+        print(len(all_companies))
+        for company in all_companies:
+            yield scrapy.Request(self.base_url + company.get(), callback=self.parse_company)
+    
+    # TODO: Estrarre i dati dalle varie pagine
     def parse_company(self, response):
-        if response.status != 200:
-            yield
-        # print(response.url)
+        print(response.url)
 
     async def errback(self, failure):
         page = failure.request.meta["playwright_page"]
