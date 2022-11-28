@@ -64,7 +64,7 @@ ROBOTSTXT_OBEY = True
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   'hw5.pipelines.CompaniesmarketcapPipeline': 300,
+   'hw5.pipelines.HW5Pipeline': 300,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
