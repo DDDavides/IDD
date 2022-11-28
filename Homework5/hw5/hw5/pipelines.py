@@ -14,7 +14,7 @@ class HW5Pipeline:
     data = pd.DataFrame()
 
     def process_item(self, item, spider):
-        self.data = pd.concat([self.data, pd.DataFrame(ItemAdapter(item).asdict(), dtype=str)], sort=False, ignore_index=True)
+        self.data = pd.concat([self.data, pd.DataFrame(ItemAdapter(item).asdict(), dtype=str, index=[0])], sort=False, ignore_index=True)
         return item
     
     def close_spider(self, spider):

@@ -9,7 +9,6 @@ class CompaniesmarketcapSpider(scrapy.Spider):
     base_url = 'https://companiesmarketcap.com'
 
     start_urls = ["https://companiesmarketcap.com/page/" + str(i) for i in range(1, 11)]
-    comapnies = []
 
     #Rules
     def parse(self, response):
