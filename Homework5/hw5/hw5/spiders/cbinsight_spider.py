@@ -16,7 +16,6 @@ class CbinsightSpider(scrapy.Spider):
         bs = BeautifulSoup(response.text, 'lxml')
         table = []
         trow = bs.find_all('tr')
-        print(len(trow))
         for i in range(1, len(trow)):
             children_row = trow[i].findChildren('td', recursive=False)
             row = {
@@ -28,11 +27,7 @@ class CbinsightSpider(scrapy.Spider):
                 "Industry": children_row[5].getText(),
                 "Investors": children_row[6].getText()
             }
-            print(children_row[0].find('a')['href'])
             yield scrapy.Request(children_row[0].find('a')['href'], callback=self.parse_company, cb_kwargs=dict(row=row, table=table))
-        csv_file = './dataset/cbinsight.csv'
-        csv_columns = ['Name','Valuation',"Date Joined","Country","City","Industry", "Investors", "founded", "stage", "totalRaised"]
-        dict_to_csv(table, csv_file, csv_columns)
         
     def parse_company(self, response, row, table):
         if response.status != requests.codes.ok:
@@ -49,7 +44,16 @@ class CbinsightSpider(scrapy.Spider):
                 row['totalRaised'] = h[i].next_sibling.getText()
         if title == None:
             print(response.url)
+        
         table.append(row)
+        csv_file = '../dataset/cbinsight.csv'
+        csv_columns = ['Name','Valuation',"Date Joined","Country","City","Industry", "Investors", "founded", "stage", "totalRaised"]
+        dict_to_csv(table, csv_file, csv_columns)
+
+    def parse_financial(self, response):
+        if response.status != requests.codes.ok:
+            return
+        bs = BeautifulSoup(response.text, 'lxml')
 
 
 def dict_to_csv(table, csv_file, csv_columns):
