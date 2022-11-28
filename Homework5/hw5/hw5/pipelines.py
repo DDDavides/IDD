@@ -6,8 +6,16 @@
 
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
+import pandas as pd
 
 
-class Hw5Pipeline:
+class CompaniesmarketcapPipeline:
+
+    data = pd.DataFrame()
+
     def process_item(self, item, spider):
+        self.data = pd.concat([self.data, pd.DataFrame(ItemAdapter(item).asdict())], sort=False, ignore_index=True)
         return item
+    
+    def close_spider(self, spider):
+        self.data.to_csv("./dataset/companiesmarketcap.csv")
