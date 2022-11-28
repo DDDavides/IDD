@@ -14,3 +14,13 @@ class CompaniesmarketcapCompanyItem(scrapy.Item):
     change1d = scrapy.Field()
     change1y = scrapy.Field()
     categories = scrapy.Field()
+
+class TechnoparkCompanyItem(scrapy.Item):
+    location = scrapy.Field()
+    name = scrapy.Field()
+    address = scrapy.Field()
+    pin = scrapy.Field()
+    phone = scrapy.Field()
+    email = scrapy.Field()
+    site = scrapy.Field()
+    ceo_and_mananging_director = scrapy.Field()
