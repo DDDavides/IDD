@@ -23,4 +23,3 @@ class TechnoparkCompanyItem(scrapy.Item):
     phone = scrapy.Field()
     email = scrapy.Field()
     site = scrapy.Field()
-    ceo_and_mananging_director = scrapy.Field()
