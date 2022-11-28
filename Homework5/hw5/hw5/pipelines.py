@@ -19,4 +19,3 @@ class HW5Pipeline:
     
     def close_spider(self, spider):
         self.data.to_csv(f"./dataset/{spider.name}.csv")
-        pass

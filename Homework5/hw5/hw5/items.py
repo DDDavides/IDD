@@ -23,3 +23,15 @@ class TechnoparkCompanyItem(scrapy.Item):
     phone = scrapy.Field()
     email = scrapy.Field()
     site = scrapy.Field()
+
+class CbinsightItem(scrapy.Item):
+    name = scrapy.Field()
+    valuation = scrapy.Field()
+    dateJoined = scrapy.Field()
+    country = scrapy.Field()
+    city = scrapy.Field()
+    industry = scrapy.Field()
+    investors = scrapy.Field()
+    founded = scrapy.Field()
+    stage = scrapy.Field()
+    totalRaised = scrapy.Field()
