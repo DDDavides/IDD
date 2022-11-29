@@ -40,7 +40,7 @@ class CbinsightItem(scrapy.Item):
 class BlindItem(scrapy.Item):
     name = scrapy.Field()
     website = scrapy.Field()
-    location = scrapy.Field()
+    locations = scrapy.Field()
     size = scrapy.Field()
     industry = scrapy.Field()
     founded = scrapy.Field()
