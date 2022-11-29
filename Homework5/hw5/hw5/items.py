@@ -36,3 +36,6 @@ class CbinsightItem(scrapy.Item):
     founded = scrapy.Field()
     stage = scrapy.Field()
     totalRaised = scrapy.Field()
+
+class NasdaqItem(scrapy.Item):
+    name = scrapy.Field()

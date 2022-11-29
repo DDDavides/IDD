@@ -1,6 +1,7 @@
 import scrapy
 import requests
 from scrapy_playwright.page import PageMethod
+from hw5.items import NasdaqItem
 # import logging
 
 # logging.basicConfig(filename='test.log', encoding='utf-8', level=print)
@@ -41,27 +42,35 @@ class NasdaqSpider(scrapy.Spider):
             # Se accedo al sito la prima volta, allora accetto i cookie
             if first_page:
                 # Salvo uno screenshot di debug prima del click
-                await page.screenshot(path="nasdaq.png", full_page=True)
-                print("Trying to accept cookies")
+                # await page.screenshot(path="nasdaq.png", full_page=True)
+                # print("Trying to accept cookies")
                 # cerco il bottone "I Accept" e clicco per far scomparire il pop up
                 await page.locator("xpath=//button[@id='onetrust-accept-btn-handler']").click()
                 # Salvo uno screenshot di debug quando ho cliccato
-                await page.screenshot(path="nasdaq_after_decline.png", full_page=True)
+                # await page.screenshot(path="nasdaq_after_decline.png", full_page=True)
                 first_page = False
-            
+        
             content = await page.content()
             s = scrapy.Selector(text=content)
             all_companies.extend(s.xpath("//tbody[@class='nasdaq-screener__table-body']/tr/th/a/@href"))
-            print("Extended companies [ len =", len(all_companies), "]")
-            await page.evaluate("document.evaluate(\"//button[contains(@class, 'pagination__page--active')]/following-sibling::button[1]\", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.click()")
-            print("Finished evaulation")
-            
-            await page.wait_for_load_state('domcontentloaded')
+            # print("Extended companies [ len =", len(all_companies), "]")
+            await page.locator("xpath=//button[contains(@class, 'pagination__page--active')]/following-sibling::button[1]").click()
+            # await page.evaluate("document.evaluate(\"//button[contains(@class, 'pagination__page--active')]/following-sibling::button[1]\", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.click()")
+            # print("Finished evaulation")
+
+            # loc = ("xpath=//button[contains(@class, 'pagination__page--active')]/following-sibling::button[1]")
+            # await page.wait_for_selector("//button[contains(@class, 'pagination__page--active')]/following-sibling::button[1]")
+            # await page.wait_for_timeout(500)
+            # await page.screenshot(path="nasdaq_last.png", full_page=True)
+            # await page.wait_for_load_state('domcontentloaded')
 
         await page.close()
         
-        print(len(all_companies), "companies got")
+        # print(len(all_companies), "companies got")
+        # i = 1
         for company in all_companies:
+            # print("[", i, "] managing request for", company.get())
+            # i += 1
             yield scrapy.Request(self.base_url+company.get(), callback=self.parse_company)
         
 
@@ -70,13 +79,16 @@ class NasdaqSpider(scrapy.Spider):
         page = failure.request.meta["playwright_page"]
         await page.close()
 
-    async def parse_company(self, response):
-        # if response.status != requests.codes.ok:
-        #     return
-        # name = response.xpath("//*[@class='symbol-page-header__name']/text()")
-        # if name == None:
-        #     print(response.url)
-        # yield {
-        #     'company_name': name
-        # }
-        print(response.url)
+    def parse_company(self, response):
+        if response.status != requests.codes.ok:
+            # print("Error in link", response.url)
+            return
+        
+        name = response.xpath("//*[@class='symbol-page-header__name']/text()").get()
+        # print("Company name:", name)
+        if name == None:
+            print("Company name empty ", response.url)
+        
+        nsqItm = NasdaqItem()
+        nsqItm['name'] = name
+        yield nsqItm
