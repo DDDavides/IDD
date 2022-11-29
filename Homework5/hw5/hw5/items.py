@@ -36,3 +36,12 @@ class CbinsightItem(scrapy.Item):
     founded = scrapy.Field()
     stage = scrapy.Field()
     totalRaised = scrapy.Field()
+
+class BlindItem(scrapy.Item):
+    name = scrapy.Field()
+    website = scrapy.Field()
+    location = scrapy.Field()
+    size = scrapy.Field()
+    industry = scrapy.Field()
+    founded = scrapy.Field()
+    salary = scrapy.Field()
