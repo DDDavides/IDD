@@ -47,7 +47,17 @@ class TechnoparkSpider(scrapy.Spider):
         if response.status != requests.codes.ok:
             return
         soup = BeautifulSoup(response.text, 'lxml')
-        company_info = [li.text.split("\n")[2].strip() for li in soup.find("ul", class_="list-sx").find_all("li")]
+        fields = ["Office Location", "company name", "address", "pin", "phone", "email", "website"]
+        company_info = []
+        for field in fields:
+            div = soup.find("div", text=field)
+            
+            result = None
+            if div:
+                result = div.parent.text.split("\n")[2].strip()
+            company_info.append(result)
+
+
 
         company = TechnoparkCompanyItem()
         company['location'] = company_info[0]
