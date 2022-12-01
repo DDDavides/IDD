@@ -39,3 +39,12 @@ class CbinsightItem(scrapy.Item):
 
 class NasdaqItem(scrapy.Item):
     name = scrapy.Field()
+    analysisDate = scrapy.Field()
+    exchange = scrapy.Field()
+    sector = scrapy.Field()
+    industry = scrapy.Field()
+    oneYearTarget = scrapy.Field()
+    shareVolume = scrapy.Field()
+    averageVolume = scrapy.Field()
+    marketCap = scrapy.Field()
+    # Altro? guarda sito per decidere
