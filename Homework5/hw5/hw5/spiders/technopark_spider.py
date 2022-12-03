@@ -1,5 +1,8 @@
 import scrapy
+import requests
 from scrapy_playwright.page import PageMethod
+from bs4 import BeautifulSoup
+from hw5.items import TechnoparkCompanyItem
 
 class TechnoparkSpider(scrapy.Spider):
     name = 'technopark'
@@ -36,13 +39,39 @@ class TechnoparkSpider(scrapy.Spider):
 
         all_companies = s.xpath("//div[contains(@class,'cmpny-detail')]//a[@href][1]/@href")
         
-        print(len(all_companies))
         for company in all_companies:
             yield scrapy.Request(self.base_url + company.get(), callback=self.parse_company)
     
-    # TODO: Estrarre i dati dalle varie pagine
+
     def parse_company(self, response):
-        print(response.url)
+        if response.status != requests.codes.ok:
+            return
+        soup = BeautifulSoup(response.text, 'lxml')
+        fields = ["Office Location", "company name", "address", "pin", "phone", "email", "website"]
+        company_info = []
+        for field in fields:
+            div = soup.find("div", text=field)
+            
+            result = None
+            if div:
+                result = div.parent.text.split("\n")[2].strip()
+            company_info.append(result)
+
+
+
+        company = TechnoparkCompanyItem()
+        company['location'] = company_info[0]
+        company['name'] = company_info[1]
+        company['address'] = company_info[2]
+        company['pin'] = company_info[3]
+        company['phone'] = company_info[4]
+        company['email'] = company_info[5] if len(company_info) >= 6 else None
+        company['site'] = company_info[6] if len(company_info) >= 7 else None
+        
+        yield company
+
+
+
 
     async def errback(self, failure):
         page = failure.request.meta["playwright_page"]
