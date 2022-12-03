@@ -48,3 +48,15 @@ class NasdaqItem(scrapy.Item):
     averageVolume = scrapy.Field()
     marketCap = scrapy.Field()
     # Altro? guarda sito per decidere
+
+class FinancialItem(scrapy.Item):
+    name = scrapy.Field()
+    country = scrapy.Field()
+    sector = scrapy.Field()
+    absolute_growth_rate_pct = scrapy.Field()
+    compound_annual_growth_rate_cagr_pct = scrapy.Field()
+    revenue_2020_euro = scrapy.Field()
+    revenue_2017_euro = scrapy.Field()
+    number_of_employees_2020 = scrapy.Field()
+    number_of_employees_2017 = scrapy.Field()
+    founding_year = scrapy.Field()

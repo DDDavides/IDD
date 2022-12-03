@@ -7,6 +7,7 @@ process
 
 
 process.crawl('cbinsight')
-process.crawl('nasdaq')
-# process.crawl('technopark_spider')
+process.crawl('financial')
+process.crawl('technopark_spider')
+process.crawl('companiesmarketcap')
 process.start() # the script will block here until the crawling is finished
