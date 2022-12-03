@@ -59,3 +59,11 @@ class FinancialItem(scrapy.Item):
     number_of_employees_2020 = scrapy.Field()
     number_of_employees_2017 = scrapy.Field()
     founding_year = scrapy.Field()
+
+class BlindItem(scrapy.Item):
+    name = scrapy.Field()
+    website = scrapy.Field()
+    locations = scrapy.Field()
+    size = scrapy.Field()
+    industry = scrapy.Field()
+    founded = scrapy.Field()

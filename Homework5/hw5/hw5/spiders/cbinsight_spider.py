@@ -32,14 +32,9 @@ class CbinsightSpider(scrapy.Spider):
         if response.status != requests.codes.ok:
             return
         bs = BeautifulSoup(response.text, 'lxml')
-        h = bs.find_all('h2', {'class': 'text-sm text-black'})
-        for i in range(0, len(h)-1):
-            if i == 0:
-                company['founded'] = h[i].next_sibling.getText()
-            elif i == 1: 
-                company['stage'] = h[i].next_sibling.getText()
-            elif i == 2:
-                company['totalRaised'] = h[i].next_sibling.getText()
+        company['founded'] = bs.find(text =  'Founded Year').parent.next_sibling.get_text() if bs.find(text =  'Founded Year') else 'None'
+        company['stage'] = bs.find(text =  'Stage').parent.next_sibling.get_text() if bs.find(text =  'Stage') else 'None'
+        company['totalRaised'] = bs.find(text =  'Total Raised').parent.next_sibling.get_text() if bs.find(text =  'Total Raised') else 'None'
         yield company
 
 def myselector(tag):
