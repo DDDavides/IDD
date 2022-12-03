@@ -34,21 +34,20 @@ class NasdaqSpider(scrapy.Spider):
         if first_page:
             await page.locator("//button[text()='Show more']").click()
             first_page = False
-        await page.close()
 
         # Seguire le regole definite nel parse_column_name
-        attrs = {
-            'name': None,
-            'country': None,
-            'sector': None,
-            'absolute_growth_rate_pct': None,
-            'compound_annual_growth_rate_cagr_pct': None,
-            'revenue_2020_euro': None,
-            'revenue_2017_euro': None,
-            'number_of_employees_2020': None,
-            'number_of_employees_2017': None,
-            'founding_year': None
-        }
+        attrs = [
+            'name',
+            'country',
+            'sector',
+            'absolute_growth_rate_pct',
+            'compound_annual_growth_rate_cagr_pct',
+            'revenue_2020_euro',
+            'revenue_2017_euro',
+            'number_of_employees_2020',
+            'number_of_employees_2017',
+            'founding_year'
+        ]
         
         # su tutti i tag strong, prendo il testo ed eseguo il parsing del nome degli attributi delle colonne
         column_header = self.parse_column_names(list(map(lambda x : x.get_text(), soup.find_all('strong'))))
@@ -69,6 +68,7 @@ class NasdaqSpider(scrapy.Spider):
                         d = d.get_text()
                     financeItem[d_attr] = d
             yield financeItem
+        await page.close()
 
     async def errback(self, failure):
         print("FAIL")

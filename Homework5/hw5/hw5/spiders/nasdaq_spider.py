@@ -7,15 +7,15 @@ import re
 # from playwright.async_api import async_playwright
 
 # for logging
-import logging
-from scrapy.utils.log import configure_logging 
+# import logging
+# from scrapy.utils.log import configure_logging 
     
 class NasdaqSpider(scrapy.Spider):
-    configure_logging(install_root_handler=False)
-    logging.basicConfig(
-        filename='log.txt',
-        level=logging.DEBUG
-    )
+    # configure_logging(install_root_handler=False)
+    # logging.basicConfig(
+    #     filename='log.txt',
+    #     level=logging.DEBUG
+    # )
     name = 'nasdaq'
     allowed_domains = ['nasdaq.com']
     base_url = 'https://www.nasdaq.com'
