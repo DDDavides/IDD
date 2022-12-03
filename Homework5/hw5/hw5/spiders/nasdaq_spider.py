@@ -4,11 +4,21 @@ from scrapy_playwright.page import PageMethod
 from hw5.items import NasdaqItem
 from bs4 import BeautifulSoup
 import re
+# from playwright.async_api import async_playwright
 
+# for logging
+import logging
+from scrapy.utils.log import configure_logging 
+    
 class NasdaqSpider(scrapy.Spider):
+    configure_logging(install_root_handler=False)
+    logging.basicConfig(
+        filename='log.txt',
+        level=logging.DEBUG
+    )
     name = 'nasdaq'
+    allowed_domains = ['nasdaq.com']
     base_url = 'https://www.nasdaq.com'
-    # i = 0
 
     def start_requests(self):
         url = 'https://www.nasdaq.com/market-activity/stocks/screener'
@@ -21,9 +31,10 @@ class NasdaqSpider(scrapy.Spider):
             # [Vedi https://scrapeops.io/python-scrapy-playbook/scrapy-playwright/#how-to-install-scrapy-playwright]
             playwright_include_page = True,
             # tell what to do on the start page
-            # playwright_page_methods =[
-            #         PageMethod('wait_for_timeout', 1000),
-            #     ],
+            playwright_page_methods =[
+                    # PageMethod('wait_for_load_state', 'domcontentloaded'),
+                    PageMethod('wait_for_timeout', 2000),
+                ],
             # when using prev setting, recommanded to use following setting
             # to make sure pages are closed even if a request fails
             errback = self.errback,
@@ -32,68 +43,73 @@ class NasdaqSpider(scrapy.Spider):
     async def parse(self, response):
         all_companies = []
         page = response.meta["playwright_page"]
-        # print("Current page:", page)
         
-        tot_companies = 100
+        tot_companies = 25
         company_per_page = 25
         first_page = True
-        for _ in range(tot_companies // company_per_page):
+        iters = tot_companies // company_per_page
+        for i in range(iters):
             # Se accedo al sito la prima volta, allora accetto i cookie
             if first_page:
                 # Salvo uno screenshot di debug prima del click
                 # await page.screenshot(path="nasdaq.png", full_page=True)
                 # cerco il bottone "I Accept" e clicco per far scomparire il pop up
+                logging.debug("STO CLICCANDO IL BOTTONE")
                 await page.locator("xpath=//button[@id='onetrust-accept-btn-handler']").click()
+                logging.debug("HO CLICCATO IL BOTTONE")
                 # Salvo uno screenshot di debug quando ho cliccato
                 # await page.screenshot(path="nasdaq_after_decline.png", full_page=True)
                 first_page = False
         
             content = await page.content()
             s = scrapy.Selector(text=content)
-            all_companies.extend(s.xpath("//tbody[@class='nasdaq-screener__table-body']/tr/th/a/@href"))
-            await page.locator("xpath=//button[contains(@class, 'pagination__page--active')]/following-sibling::button[1]").click()
-            # await page.evaluate("document.evaluate(\"//button[contains(@class, 'pagination__page--active')]/following-sibling::button[1]\", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.click()")
-
-            # await page.wait_for_selector("//button[contains(@class, 'pagination__page--active')]/following-sibling::button[1]")
-            # await page.wait_for_timeout(500)
-            # await page.screenshot(path="nasdaq_last.png", full_page=True)
-            # await page.wait_for_load_state('domcontentloaded')
+            links = s.xpath("//tbody[@class='nasdaq-screener__table-body']/tr/th/a/@href")[:10]
+            all_companies.extend(links)
+            # all_companies.extend(s.xpath("(//tbody[@class='nasdaq-screener__table-body']/tr/th/a/@href)[1]"))
+            if i != iters-1:
+                await page.locator("xpath=//button[contains(@class, 'pagination__page--active')]/following-sibling::button[1]").click()
+                await page.wait_for_load_state('domcontentloaded')
         await page.close()
-        # j = 0
+
+        # with open("./link/sites.txt",'w') as f:
+        #     for company in all_companies:
+        #         f.write(f"{self.base_url+company.get()}\n")
+
         for company in all_companies:
-            # print("["+str(self.i)+"]"+"COMPAGNIE:",all_companies[j].get())
-            # self.i += 1
-            # j += 1
+            print("Company URL:", self.base_url+company.get())
             yield scrapy.Request(
                 self.base_url+company.get(), 
                 meta=dict(
                         playwright = True,
                         playwright_include_page = True,
                         playwright_page_methods =[
-                            PageMethod('evaluate', "window.scrollTo(0, document.body.scrollHeight)"),
-                            PageMethod('wait_for_timeout', 250),
-                            PageMethod('evaluate', "window.scrollTo(document.body.scrollHeight, document.body.scrollHeight/8)"),
-                            PageMethod('evaluate', "window.scrollTo(0, document.body.scrollHeight)"),
+                            # PageMethod('wait_for_selector', "//*[@class='symbol-page-header__name']/text()"),
                             PageMethod('wait_for_timeout', 500),
-                            PageMethod('evaluate', "window.scrollTo(document.body.scrollHeight, document.body.scrollHeight/8)"),
+                            PageMethod('evaluate', "window.scrollTo(0, document.body.scrollHeight/16)"),
+                            PageMethod('wait_for_timeout', 500),
+                            PageMethod('evaluate', "window.scrollTo(document.body.scrollHeight/16, document.body.scrollHeight/8)"),
+                            PageMethod('wait_for_timeout', 500),
+                            PageMethod('evaluate', "window.scrollTo(document.body.scrollHeight/16, document.body.scrollHeight/4)"),
+                            # PageMethod('evaluate', "window.scrollTo(0, document.body.scrollHeight)"),
+                            # PageMethod('evaluate', "window.scrollTo(0, document.body.scrollHeight)"),
+                            # PageMethod('evaluate', "window.scrollTo(document.body.scrollHeight, document.body.scrollHeight/8)"),
                         ],
                         errback = self.errback,
                     ),
                 callback = self.parse_company
                 )
+        
 
-    async def parse_company(self, response):
-        page = response.meta["playwright_page"]
-        # print("Current page company", response.url)
+    def parse_company(self, response):
+        print("CURRENT PAGE COMPANY:\n", response.url)
 
         soup = BeautifulSoup(response.text, 'lxml')
         if response.status != requests.codes.ok:
-            print("Error code in", response.url)
+            print("\n\nError code in\n\n", response.url)
             return
         
         name = response.xpath("//*[@class='symbol-page-header__name']/text()").get()
         # print("Name:", name)
-        await page.screenshot(path="./screenshots/nasdaq_"+name+".png")
         # analysisDate = response.xpath("//*[contains(@class,'symbol-page-header__timestamp')]/span/text()").get()
         # print("Date:", analysisDate)
         
@@ -139,25 +155,16 @@ class NasdaqSpider(scrapy.Spider):
         nsqItm['shareVolume'] = attrs['share_volume']
         nsqItm['averageVolume'] = attrs['average_volume']
         nsqItm['marketCap'] = attrs['market_cap']
-
-        # company_info = soup.find_all("td", {'class':'summary-data__cell'})
-        # print(len(company_info), "attributes got")
-        # print("INFO GOT", company_info)
-        # for i in company_info:
-        #     if i == None:
-        #         print("Attribute", i, "empty for", response.url)
-        
-        # nsqItm = NasdaqItem()
-        # nsqItm['name'] = name
-        # # nsqItm['analysisDate'] = analysisDate  
-        # nsqItm['exchange'] = company_info[0].get_text()
-        # nsqItm['sector'] = company_info[1].get_text()
-        # nsqItm['industry'] = company_info[2].get_text()
-        # nsqItm['oneYearTarget'] = company_info[3].get_text()
-        # nsqItm['shareVolume'] = company_info[5].get_text()
-        # nsqItm['averageVolume'] = company_info[6].get_text()
-        # nsqItm['marketCap'] = company_info[9].get_text()
         yield nsqItm
+
+    # async def start_trace(self):
+    #     async with async_playwright() as p:
+    #         self.browser = await p.chromium.launch()
+    #         self.context = await self.browser.new_context()
+    #         await self.context.tracing.start(screenshots=True, snapshots=True, sources=True)
+
+    # async def stop_tracing(self):
+    #     await self.context.tracing.stop(path = "./tracer/trace.zip")
 
     async def errback(self, failure):
         print("FAIL")
