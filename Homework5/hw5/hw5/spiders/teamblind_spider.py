@@ -14,7 +14,7 @@ user_agent_list = [
 ]
 
 
-class CbinsightSpider(scrapy.Spider):
+class TeamblindSpider(scrapy.Spider):
     name = 'teamblind'
     allowed_domains = ['www.teamblind.com']
     start_urls = [
@@ -25,8 +25,8 @@ class CbinsightSpider(scrapy.Spider):
     def parse(self, response):
         bs = BeautifulSoup(response.text, 'lxml')
         companies = bs.find_all('a', class_='name')
-
-        for company in companies:
+        ntopick = 1000
+        for company in random.sample(companies, ntopick + 1):
             yield scrapy.Request(self.base_url + company['href'], callback=self.parse_company, headers={"User-Agent": user_agent_list[random.randint(0, len(user_agent_list)-1)]})
         
     def parse_company(self, response):
@@ -40,5 +40,4 @@ class CbinsightSpider(scrapy.Spider):
         company['size'] = bs.find(text = 'Size').parent.next_sibling if bs.find(text = 'Size').parent.next_sibling else 'None'
         company['industry'] = bs.find(text = 'Industry').parent.next_sibling if bs.find(text = 'Industry').parent.next_sibling else 'None'
         company['founded'] = bs.find(text = 'Founded').parent.next_sibling if bs.find(text = 'Founded').parent.next_sibling else 'None'
-        company['salary'] = bs.find(text = 'Salary').parent.next_sibling if bs.find(text = 'Salary').parent.next_sibling else 'None'
         yield company

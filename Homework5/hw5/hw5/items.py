@@ -44,4 +44,3 @@ class BlindItem(scrapy.Item):
     size = scrapy.Field()
     industry = scrapy.Field()
     founded = scrapy.Field()
-    salary = scrapy.Field()
