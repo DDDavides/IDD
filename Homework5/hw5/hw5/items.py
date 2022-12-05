@@ -5,6 +5,8 @@
 
 import scrapy
 
+not_available = "N/A"
+
 class CompaniesmarketcapCompanyItem(scrapy.Item):
     name = scrapy.Field()
     rank = scrapy.Field()
