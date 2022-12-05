@@ -3,12 +3,16 @@ import requests
 from bs4 import BeautifulSoup
 from hw5.items import CompaniesmarketcapCompanyItem
 from hw5.items import not_available
+import yaml
 
 class CompaniesmarketcapSpider(scrapy.Spider):
     name = 'companiesmarketcap'
     allowed_domains = ['companiesmarketcap.com']
     base_url = 'https://companiesmarketcap.com'
-    ntopick = 370
+    
+    ntopick = 1000
+    with open("../config.yaml", "r") as f:
+        ntopick = yaml.load(f, Loader=yaml.FullLoader)['ntopick']
 
     start_urls = ["https://companiesmarketcap.com/page/{}".format(i+1) for i in range((ntopick // 100) + 1)]
 

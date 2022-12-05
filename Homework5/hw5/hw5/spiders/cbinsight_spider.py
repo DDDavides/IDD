@@ -1,8 +1,8 @@
 import scrapy
 import requests
 from bs4 import BeautifulSoup
-import csv
 from hw5.items import CbinsightItem
+import yaml
 
 class CbinsightSpider(scrapy.Spider):
     name = 'cbinsight'
@@ -12,11 +12,14 @@ class CbinsightSpider(scrapy.Spider):
     ]
     base_url = 'https://www.cbinsights.com/research-unicorn-companies'
 
+    ntopick = 1000
+    with open("../config.yaml", "r") as f:
+        ntopick = yaml.load(f, Loader=yaml.FullLoader)['ntopick']
+
     def parse(self, response):
         bs = BeautifulSoup(response.text, 'lxml')
         trow = bs.find_all('tr')
-        ntopick = 1000
-        for i in range(1, min(len(trow), ntopick + 1)):
+        for i in range(1, min(len(trow), self.ntopick + 1)):
             children_row = trow[i].findChildren('td', recursive=False)
             company = CbinsightItem()
             company['name'] = children_row[0].getText()

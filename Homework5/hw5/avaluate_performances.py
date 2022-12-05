@@ -4,7 +4,7 @@ spiders = ["financial", "companiesmarketcap", "cbinsight", "teamblind"]
 
 rtimes=[]
 for spider in spiders:
-  print("evaluating $spider crawling time:")
+  print(f"evaluating {spider} crawling time:")
 
   start = time.time()
   os.system(f"scrapy crawl {spider} -s LOG_ENABLED=0")
@@ -13,8 +13,7 @@ for spider in spiders:
   rtimes.append(rtime)
 
 s=sum(rtimes)
-
 mean = s / len(rtimes)
 print("summary:")
-print("tot time:  ${sum}s")
-print("mean time: ${mean}s")
+print(f"tot time:  {s}s")
+print(f"mean time: {mean}s")

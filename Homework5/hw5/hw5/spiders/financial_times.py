@@ -3,13 +3,17 @@ import requests
 from scrapy_playwright.page import PageMethod
 from hw5.items import FinancialItem
 from bs4 import BeautifulSoup
+import yaml
 import re
     
 class NasdaqSpider(scrapy.Spider):
     name = 'financial'
     allowed_domains = ['ft.com']
     start_urls = ['https://www.ft.com/ft1000-2022']
-    n_to_pick = 100
+
+    ntopick = 1000
+    with open("../config.yaml", "r") as f:
+        ntopick = yaml.load(f, Loader=yaml.FullLoader)['ntopick']
 
     def start_requests(self):
         meta = dict(
@@ -55,8 +59,8 @@ class NasdaqSpider(scrapy.Spider):
 
         # prendo tutte le istanze
         rows = soup.find('tbody').find_all('tr')
-        if len(rows) > self.n_to_pick:
-            rows = rows[:self.n_to_pick]
+        if len(rows) > self.ntopick:
+            rows = rows[:self.ntopick]
 
         for row in rows:
             financeItem = FinancialItem()

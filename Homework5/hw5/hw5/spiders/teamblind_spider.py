@@ -1,9 +1,9 @@
 import scrapy
 import requests
 from bs4 import BeautifulSoup
-import csv
 from hw5.items import BlindItem
 import random
+import yaml
 
 user_agent_list = [
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.82 Safari/537.36',
@@ -22,11 +22,14 @@ class TeamblindSpider(scrapy.Spider):
     ]
     base_url = 'https://www.teamblind.com'
 
+    ntopick = 1000
+    with open("../config.yaml", "r") as f:
+        ntopick = yaml.load(f, Loader=yaml.FullLoader)['ntopick']
+
     def parse(self, response):
         bs = BeautifulSoup(response.text, 'lxml')
         companies = bs.find_all('a', class_='name')
-        ntopick = 1000
-        for company in random.sample(companies, ntopick + 1):
+        for company in random.sample(companies, self.ntopick + 1):
             yield scrapy.Request(self.base_url + company['href'], callback=self.parse_company, headers={"User-Agent": user_agent_list[random.randint(0, len(user_agent_list)-1)]})
         
     def parse_company(self, response):
