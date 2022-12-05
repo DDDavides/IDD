@@ -15,8 +15,8 @@ class CbinsightSpider(scrapy.Spider):
     def parse(self, response):
         bs = BeautifulSoup(response.text, 'lxml')
         trow = bs.find_all('tr')
-
-        for i in range(1, len(trow)):
+        ntopick = 1000
+        for i in range(1, min(len(trow), ntopick + 1)):
             children_row = trow[i].findChildren('td', recursive=False)
             company = CbinsightItem()
             company['name'] = children_row[0].getText()
