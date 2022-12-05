@@ -1,2 +1,0 @@
-pip install scrapy-playwright
-playwright install
