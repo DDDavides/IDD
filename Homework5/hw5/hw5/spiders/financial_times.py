@@ -9,6 +9,7 @@ class NasdaqSpider(scrapy.Spider):
     name = 'financial'
     allowed_domains = ['ft.com']
     start_urls = ['https://www.ft.com/ft1000-2022']
+    n_to_pick = 100
 
     def start_requests(self):
         meta = dict(
@@ -54,6 +55,9 @@ class NasdaqSpider(scrapy.Spider):
 
         # prendo tutte le istanze
         rows = soup.find('tbody').find_all('tr')
+        if len(rows) > self.n_to_pick:
+            rows = rows[:self.n_to_pick]
+
         for row in rows:
             financeItem = FinancialItem()
             # prendo i campi della riga corrente
