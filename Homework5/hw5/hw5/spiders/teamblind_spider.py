@@ -2,6 +2,7 @@ import scrapy
 import requests
 from bs4 import BeautifulSoup
 from hw5.items import BlindItem
+from hw5.items import not_available
 import random
 import yaml
 
@@ -38,9 +39,9 @@ class TeamblindSpider(scrapy.Spider):
         bs = BeautifulSoup(response.text, 'lxml')
         company = BlindItem()
         company['name'] = bs.find('h1').get_text()
-        company['website'] = bs.find(text = 'Website').parent.parent.a.get_text() if bs.find(text = 'Website').parent.parent.a else 'None'
-        company['locations'] = bs.find(text = 'Locations').parent.next_sibling if bs.find(text = 'Locations').parent.next_sibling else 'None'
-        company['size'] = bs.find(text = 'Size').parent.next_sibling if bs.find(text = 'Size').parent.next_sibling else 'None'
-        company['industry'] = bs.find(text = 'Industry').parent.next_sibling if bs.find(text = 'Industry').parent.next_sibling else 'None'
-        company['founded'] = bs.find(text = 'Founded').parent.next_sibling if bs.find(text = 'Founded').parent.next_sibling else 'None'
+        company['website'] = bs.find(text = 'Website').parent.parent.a.get_text().replace('\n', '').strip() if bs.find(text = 'Website').parent.parent.a else not_available
+        company['locations'] = bs.find(text = 'Locations').parent.next_sibling.replace('\n', '').strip() if bs.find(text = 'Locations').parent.next_sibling else not_available
+        company['size'] = bs.find(text = 'Size').parent.next_sibling.replace('\n', '').strip() if bs.find(text = 'Size').parent.next_sibling else not_available
+        company['industry'] = bs.find(text = 'Industry').parent.next_sibling.replace('\n', '').strip() if bs.find(text = 'Industry').parent.next_sibling else not_available
+        company['founded'] = bs.find(text = 'Founded').parent.next_sibling.replace('\n', '').strip() if bs.find(text = 'Founded').parent.next_sibling else not_available
         yield company

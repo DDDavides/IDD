@@ -5,7 +5,7 @@
 
 import scrapy
 
-not_available = "N/A"
+not_available = "None"
 
 class CompaniesmarketcapCompanyItem(scrapy.Item):
     name = scrapy.Field()

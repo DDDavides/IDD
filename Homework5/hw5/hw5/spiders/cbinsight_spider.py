@@ -15,7 +15,6 @@ class CbinsightSpider(scrapy.Spider):
     ntopick = 1000
     with open("../config.yaml", "r") as f:
         ntopick = yaml.load(f, Loader=yaml.FullLoader)['ntopick']
-
     def parse(self, response):
         bs = BeautifulSoup(response.text, 'lxml')
         trow = bs.find_all('tr')
