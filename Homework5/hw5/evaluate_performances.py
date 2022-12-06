@@ -26,7 +26,7 @@ for x in [100, 200, 400, 800, 1000]:
 
     print(f"run time: {times[-1]}s")
     print(f"data loss: {loss[-1]}")
-    print(f"loss (perncentage):  {loss[-1] / x}")
+    print(f"loss (percentage):  {loss[-1] / x}")
   
   tot_t = sum(times)
   mean = tot_t / len(times)
@@ -38,5 +38,5 @@ for x in [100, 200, 400, 800, 1000]:
   print(f"\ttotal full time:  {tot_t}s")
   print(f"\tmean time: {mean}s")
   print(f"\ttotal loss:  {tot_l}")
-  print(f"\ttotal loss (perncentage):  {tot_lp}")
+  print(f"\ttotal loss (percentage):  {tot_lp}")
   print("******************************************")
