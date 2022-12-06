@@ -21,13 +21,13 @@ class CbinsightSpider(scrapy.Spider):
         for i in range(1, min(len(trow), self.ntopick + 1)):
             children_row = trow[i].findChildren('td', recursive=False)
             company = CbinsightItem()
-            company['name'] = children_row[0].getText()
-            company['valuation'] = children_row[1].getText() +'B'
-            company['dateJoined'] = children_row[2].getText()
-            company['country'] = children_row[3].getText()
-            company['city'] =  children_row[4].getText()
-            company['industry'] =  children_row[5].getText()
-            company['investors'] =  children_row[6].getText()
+            company['name'] = children_row[0].getText().strip()
+            company['valuation'] = children_row[1].getText().strip() +' B'
+            company['dateJoined'] = children_row[2].getText().strip()
+            company['country'] = children_row[3].getText().strip()
+            company['city'] =  children_row[4].getText().strip()
+            company['industry'] =  children_row[5].getText().strip()
+            company['investors'] =  children_row[6].getText().strip()
             yield scrapy.Request(children_row[0].find('a')['href'], callback=self.parse_company, cb_kwargs=dict(company = company))
         
     def parse_company(self, response, company):

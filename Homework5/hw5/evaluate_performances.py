@@ -1,42 +1,40 @@
-import time, yaml, os
 import pandas as pd
+import time, yaml, os
 
-spiders = ["financial", "companiesmarketcap", "cbinsight", "teamblind"]
+spiders = ["financial", "companiesmarketcap", "cbinsight"]
+output_file = "../performance.txt"
+config_file = "../config.yaml"
+num_instances = [100, 200, 400, 800, 1000]
 
-with open('../config.yaml') as f:
+with open(config_file) as f:
   config = yaml.load(f, Loader=yaml.FullLoader)
 
-print("******************************************")
-for x in [100, 200, 400, 800, 1000]:
+to_eval = ["run_time", "data_loss", "data_loss_(pct)"]
+performances = { spider: {x: {field: 0 for field in to_eval} for x in num_instances}  for spider in spiders}
+for x in num_instances:
+
   config['ntopick'] = x
-  with open('../config.yaml', "w") as f:
+  with open(config_file, "w") as f:
     yaml.dump(config, stream=f, default_flow_style=False, sort_keys=False)
   
-  print(f"max companies number: {x}")
-  times = []
-  loss = []
   for spider in spiders:
-    print(f"evaluating {spider} crawling time:")
-
     start = time.time()
     os.system(f"scrapy crawl {spider} -s LOG_ENABLED=0")
-    
-    times.append(time.time() - start)
-    loss.append(x - len(pd.read_csv(f"./dataset/{spider}.csv").index))
 
-    print(f"run time: {times[-1]}s")
-    print(f"data loss: {loss[-1]}")
-    print(f"loss (percentage):  {loss[-1] / x}")
-  
-  tot_t = sum(times)
-  mean = tot_t / len(times)
-  
-  tot_l = sum(loss)
-  tot_lp = tot_l / (x * len(spiders))
+    run_time = time.time() - start
+    data_loss = x - len(pd.read_csv(f"./dataset/{spider}.csv").index)
+    data_loss_pct = data_loss / x
 
-  print("\nsummary:")
-  print(f"\ttotal full time:  {tot_t}s")
-  print(f"\tmean time: {mean}s")
-  print(f"\ttotal loss:  {tot_l}")
-  print(f"\ttotal loss (percentage):  {tot_lp}")
-  print("******************************************")
+    performances[spider][x]["run_time"] = run_time
+    performances[spider][x]["data_loss"] = data_loss
+    performances[spider][x]["data_loss_pct"] = data_loss_pct
+
+os.mkdir("./performances")
+for spider in performances:
+  df = pd.DataFrame()
+  
+  for x in performances[spider]:
+    tmp = pd.DataFrame(performances[spider][x], index=[x])
+    df = pd.concat([df,  tmp])
+
+  df.to_csv(f"./performances/{spider}.csv")
