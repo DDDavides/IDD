@@ -6,6 +6,8 @@ from hw5.items import not_available
 import random
 import yaml
 
+nones = ['None', 'n/a', 'N/A', '-']
+
 class TeamblindSpider(scrapy.Spider):
     name = 'teamblind'
     allowed_domains = ['www.teamblind.com']
@@ -29,10 +31,25 @@ class TeamblindSpider(scrapy.Spider):
             return
         bs = BeautifulSoup(response.text, 'lxml')
         company = BlindItem()
-        company['name'] = bs.find('h1').get_text()
-        company['website'] = bs.find(text = 'Website').parent.parent.a.get_text().replace('\n', '').strip() if bs.find(text = 'Website').parent.parent.a else not_available
-        company['locations'] = bs.find(text = 'Locations').parent.next_sibling.replace('\n', '').strip() if bs.find(text = 'Locations').parent.next_sibling else not_available
-        company['size'] = bs.find(text = 'Size').parent.next_sibling.replace('\n', '').strip() if bs.find(text = 'Size').parent.next_sibling else not_available
-        company['industry'] = bs.find(text = 'Industry').parent.next_sibling.replace('\n', '').strip() if bs.find(text = 'Industry').parent.next_sibling else not_available
-        company['founded'] = bs.find(text = 'Founded').parent.next_sibling.replace('\n', '').strip() if bs.find(text = 'Founded').parent.next_sibling else not_available
+        company['name'] = bs.find('h1').get_text() if bs.find('h1').get_text() not in nones else not_available
+        company['website'] = bs.find(text = 'Website').parent.parent.a.get_text().replace('\n', '').strip() if bs.find(text = 'Website').parent.parent.a or bs.find(text = 'Website').parent.parent.a.get_text() not in nones else not_available
+
+        fields = ['Locations', 'Size', 'Industry', 'Founded']
+        company_info = []
+
+        for field in fields:
+            elem = bs.find(text =  field).parent.next_sibling
+            if not elem:
+                company_info.append(not_available)
+            else: 
+                value = elem.replace('\n', '').strip()
+                if value in nones:
+                    company_info.append(not_available)
+                else:
+                    company_info.append(value)
+
+        company['locations'] = company_info[0]
+        company['size'] = company_info[1]
+        company['industry'] = company_info[2]
+        company['founded'] = company_info[3]
         yield company
