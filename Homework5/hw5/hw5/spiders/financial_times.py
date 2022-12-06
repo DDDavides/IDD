@@ -5,11 +5,13 @@ from hw5.items import FinancialItem
 from bs4 import BeautifulSoup
 import yaml
 import re
+from hw5.items import not_available
     
 class NasdaqSpider(scrapy.Spider):
     name = 'financial'
     allowed_domains = ['ft.com']
     start_urls = ['https://www.ft.com/ft1000-2022']
+    null_values = ['n/a','na']
 
     ntopick = 1000
     with open("../config.yaml", "r") as f:
@@ -70,10 +72,9 @@ class NasdaqSpider(scrapy.Spider):
             for (d_attr,d) in zip(column_header,data):
                 # se è un attributo d'interesse
                 if d_attr in attrs:
-                    # controllo necessario perché il nome è dentro un tag <a> annidato al <td> corrente
-                    # <td><a>nome società</a></td>
-                    if d_attr == 'name':
-                        d = d.get_text()
+                    d = d.get_text()
+                    if d in self.null_values:
+                        d = not_available
                     financeItem[d_attr] = d
             yield financeItem
         await page.close()
