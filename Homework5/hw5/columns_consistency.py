@@ -3,9 +3,9 @@ import os, re
 from hw5.items import not_available
 
 dataframes = []
-out_path = "./consistency"
+out_path = "./csv_stats/consistency"
 
-directory = './dataset'
+directory = './csv_stats/dataset'
 for filename in os.listdir(directory):
     f = os.path.join(directory, filename)
     # checking if it is a file
@@ -41,4 +41,4 @@ for dataset in evaluate:
         tmp = pd.DataFrame(evaluate[dataset][column], index=[column])
         df = pd.concat([df,  tmp])
 
-    df.to_csv(f"./consistency/{dataset}.csv") 
+    df.to_csv(f"./csv_stats/consistency/{dataset}.csv") 

@@ -96,18 +96,18 @@ def get_number_nans(df):
 def save_to_csv(dic):
     df = pd.DataFrame.from_dict(dic)
     #save rows and columns
-    df.iloc[:2].to_csv('./csv_per_stats/stats/row_col.csv')
-    df.iloc[4].to_csv('./csv_per_stats/stats/nan.csv')
-    df.iloc[5].to_csv('./csv_per_stats/stats/nan_col.csv')
-    df.iloc[6].to_csv('./csv_per_stats/stats/nan_row.csv')
-    df.iloc[7].to_csv('./csv_per_stats/stats/nnan_col.csv')
-    df.iloc[8].to_csv('./csv_per_stats/stats/nnan_row.csv')
+    df.iloc[:2].to_csv(base_path + 'row_col.csv')
+    df.iloc[4].to_csv(base_path + 'nan.csv')
+    df.iloc[5].to_csv(base_path + 'nan_col.csv')
+    df.iloc[6].to_csv(base_path + 'nan_row.csv')
+    df.iloc[7].to_csv(base_path + 'nnan_col.csv')
+    df.iloc[8].to_csv(base_path + 'nnan_row.csv')
 #TODO: numero di valori diversi per colonna
 
 
 
 dataframes = []
-directory = './dataset'
+directory = './csv_stats/dataset'
 for filename in os.listdir(directory):
     f = os.path.join(directory, filename)
     # checking if it is a file
@@ -117,5 +117,6 @@ for filename in os.listdir(directory):
         dataframes.append(df)
 
 df = get_stats(dataframes)
+base_path = './csv_stats/stats/'
 save_to_csv(df)
-pd.DataFrame.from_dict(df).to_csv('./csv_per_stats/stats/all_stats.csv')
+pd.DataFrame.from_dict(df).to_csv(base_path + 'all_stats.csv')
