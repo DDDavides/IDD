@@ -13,10 +13,10 @@ for filename in os.listdir(directory):
         dataframes.append(df)
 
 numerical_r = r"^\$?[0-9]+([.,]|[0-9])*\$?(\ [MBTKmbtk])?$"
-def is_nuerical(string: str):
+def is_numerical(string: str):
     return re.match(numerical_r, string)
 
-fields = lambda: {"num": 0, "tex": 0, "null": 0}
+fields = lambda: {"numerical": 0, "textual": 0, "null": 0}
 evaluate = { df.Name: { col: fields() for col in df.columns[1:] } for df in dataframes }
 for df in dataframes:
 
@@ -24,11 +24,10 @@ for df in dataframes:
         for col in df.columns[1:]:
             if df[col][idx] == not_available:
                 evaluate[df.Name][col]["null"] += 1
+            elif is_numerical(str(df[col][idx])):
+                evaluate[df.Name][col]["numerical"] += 1
             else:
-                if is_nuerical(str(df[col][idx])):
-                    evaluate[df.Name][col]["num"] += 1
-                else:
-                    evaluate[df.Name][col]["tex"] += 1
+                evaluate[df.Name][col]["textual"] += 1
                 
 
 os.mkdir("./consistency")
