@@ -2,7 +2,10 @@ import scrapy
 import requests
 from bs4 import BeautifulSoup
 from hw5.items import CbinsightItem
+from hw5.items import not_available
 import yaml
+
+nones = ['None', 'n/a', 'N/A', '-']
 
 class CbinsightSpider(scrapy.Spider):
     name = 'cbinsight'
@@ -13,30 +16,54 @@ class CbinsightSpider(scrapy.Spider):
     base_url = 'https://www.cbinsights.com/research-unicorn-companies'
 
     ntopick = 1000
+
     with open("../config.yaml", "r") as f:
         ntopick = yaml.load(f, Loader=yaml.FullLoader)['ntopick']
     def parse(self, response):
         bs = BeautifulSoup(response.text, 'lxml')
         trow = bs.find_all('tr')
+        
         for i in range(1, min(len(trow), self.ntopick + 1)):
             children_row = trow[i].findChildren('td', recursive=False)
             company = CbinsightItem()
-            company['name'] = children_row[0].getText().strip()
-            company['valuation'] = children_row[1].getText().strip() +' B'
-            company['dateJoined'] = children_row[2].getText().strip()
-            company['country'] = children_row[3].getText().strip()
-            company['city'] =  children_row[4].getText().strip()
-            company['industry'] =  children_row[5].getText().strip()
-            company['investors'] =  children_row[6].getText().strip()
+            company_info = []
+            for child in children_row:
+                if not child or child.get_text() in nones:
+                    company_info.append(not_available)
+                else:
+                    company_info.append(child.getText())
+
+            company['name'] = company_info[0]
+            company['valuation'] = company_info[1] +'B'
+            company['dateJoined'] = company_info[2]
+            company['country'] = company_info[3]
+            company['city'] =  company_info[4]
+            company['industry'] =  company_info[5]
+            company['investors'] =  company_info[6]
             yield scrapy.Request(children_row[0].find('a')['href'], callback=self.parse_company, cb_kwargs=dict(company = company))
         
     def parse_company(self, response, company):
         if response.status != requests.codes.ok:
             return
+
         bs = BeautifulSoup(response.text, 'lxml')
-        company['founded'] = bs.find(text =  'Founded Year').parent.next_sibling.get_text() if bs.find(text =  'Founded Year') else 'None'
-        company['stage'] = bs.find(text =  'Stage').parent.next_sibling.get_text() if bs.find(text =  'Stage') else 'None'
-        company['totalRaised'] = bs.find(text =  'Total Raised').parent.next_sibling.get_text() if bs.find(text =  'Total Raised') else 'None'
+        fields = ['Founded Year', 'Stage', 'Total Raised']
+        company_info = []
+
+        for field in fields:
+            elem = bs.find(text =  field)
+            if not elem:
+                company_info.append(not_available)
+            else: 
+                value = elem.parent.next_sibling.get_text()
+                if value in nones:
+                    company_info.append(not_available)
+                else:
+                    company_info.append(value)
+
+        company['founded'] = company_info[0]
+        company['stage'] = company_info[1]
+        company['totalRaised'] = company_info[2]
         yield company
 
 def myselector(tag):
