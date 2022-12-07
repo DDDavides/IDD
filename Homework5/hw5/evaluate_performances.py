@@ -9,7 +9,7 @@ num_instances = [100, 200, 400, 800, 1000]
 with open(config_file) as f:
   config = yaml.load(f, Loader=yaml.FullLoader)
 
-to_eval = ["run_time", "data_loss", "data_loss_(pct)"]
+to_eval = ["run_time", "data_loss", "data_loss_pct"]
 performances = { spider: {x: {field: 0 for field in to_eval} for x in num_instances}  for spider in spiders}
 for x in num_instances:
 
@@ -25,9 +25,9 @@ for x in num_instances:
     data_loss = x - len(pd.read_csv(f"./dataset/{spider}.csv").index)
     data_loss_pct = data_loss / x
 
-    performances[spider][x]["run_time"] = run_time
-    performances[spider][x]["data_loss"] = data_loss
-    performances[spider][x]["data_loss_pct"] = data_loss_pct
+    performances[spider][x][to_eval[0]] = run_time
+    performances[spider][x][to_eval[1]] = data_loss
+    performances[spider][x][to_eval[2]] = data_loss_pct
 
 
 if not os.path.exists(out_path):

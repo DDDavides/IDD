@@ -7,7 +7,7 @@ out_path = "./consistency"
 
 directory = './dataset'
 for filename in os.listdir(directory):
-    f = os.path.join(directory, filename)
+    f = os.path.join(directory, filename) + "1"
     # checking if it is a file
     if os.path.isfile(f):
         df = pd.read_csv(f)
