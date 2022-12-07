@@ -1,9 +1,9 @@
 import pandas as pd
 import time, yaml, os
 
-spiders = ["financial", "companiesmarketcap", "cbinsight"]
-output_file = "../performance.txt"
+spiders = ["financial", "companiesmarketcap", "cbinsight", "teamblind"]
 config_file = "../config.yaml"
+out_path = "./performances"
 num_instances = [100, 200, 400, 800, 1000]
 
 with open(config_file) as f:
@@ -29,7 +29,10 @@ for x in num_instances:
     performances[spider][x]["data_loss"] = data_loss
     performances[spider][x]["data_loss_pct"] = data_loss_pct
 
-os.mkdir("./performances")
+
+if not os.path.exists(out_path):
+  os.mkdir(out_path)
+
 for spider in performances:
   df = pd.DataFrame()
   

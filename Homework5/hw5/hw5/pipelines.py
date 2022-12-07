@@ -7,7 +7,7 @@
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
 import pandas as pd
-
+import os
 
 class HW5Pipeline:
 
@@ -18,4 +18,7 @@ class HW5Pipeline:
         return item
     
     def close_spider(self, spider):
+        if not os.path.exists("./dataset"):
+            os.mkdir("./dataset")
+            
         self.data.to_csv(f"./dataset/{spider.name}.csv")

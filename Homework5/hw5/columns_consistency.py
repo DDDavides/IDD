@@ -3,6 +3,8 @@ import os, re
 from hw5.items import not_available
 
 dataframes = []
+out_path = "./consistency"
+
 directory = './dataset'
 for filename in os.listdir(directory):
     f = os.path.join(directory, filename)
@@ -28,9 +30,10 @@ for df in dataframes:
                 evaluate[df.Name][col]["numerical"] += 1
             else:
                 evaluate[df.Name][col]["textual"] += 1
-                
 
-os.mkdir("./consistency")
+if not os.path.exists(out_path):
+  os.mkdir(out_path)
+
 for dataset in evaluate:
     df = pd.DataFrame()
     for column in evaluate[dataset]:
