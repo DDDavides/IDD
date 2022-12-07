@@ -74,14 +74,14 @@ def get_stats(dfs):
     data_to_complete = {}
     for df in dfs:
         data_to_complete.update({df.Name: {'numbercolumns': len(df.columns), 'numberrows': len(df.index)}})
-    get_uncomplete_columns(dfs, data_to_complete)
-    get_uncomplete_rows(dfs, data_to_complete)
-    get_null_values(dfs, data_to_complete)
-    get_null_values_for_column(dfs, data_to_complete)
-    get_null_values_for_row(dfs, data_to_complete)
+    data_to_complete = get_uncomplete_columns(dfs, data_to_complete)
+    data_to_complete = get_uncomplete_rows(dfs, data_to_complete)
+    data_to_complete = get_null_values(dfs, data_to_complete)
+    data_to_complete = get_null_values_for_column(dfs, data_to_complete)
+    data_to_complete = get_null_values_for_row(dfs, data_to_complete)
     return data_to_complete
 
-
+#TODO: numero di valori diversi per colonna
 
 dataframes = []
 directory = './dataset'
@@ -94,5 +94,5 @@ for filename in os.listdir(directory):
         dataframes.append(df)
 
 df = get_stats(dataframes)
-
+pd.DataFrame.from_dict(df).to_csv('./stats.csv')
 print(df)
