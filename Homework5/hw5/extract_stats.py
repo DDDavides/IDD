@@ -97,6 +97,7 @@ def save_to_csv(dic):
     df = pd.DataFrame.from_dict(dic)
     #save rows and columns
     df.iloc[:2].to_csv(base_path + 'row_col.csv')
+    df.iloc[2:4].to_csv(base_path + 'uncomplete.csv')
     df.iloc[4].to_csv(base_path + 'nan.csv')
     df.iloc[5].to_csv(base_path + 'nan_col.csv')
     df.iloc[6].to_csv(base_path + 'nan_row.csv')
