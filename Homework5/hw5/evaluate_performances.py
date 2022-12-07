@@ -3,7 +3,7 @@ import time, yaml, os
 
 spiders = ["financial", "companiesmarketcap", "cbinsight", "teamblind"]
 config_file = "../config.yaml"
-out_path = "./performances"
+out_path = "./csv_stats/performances"
 num_instances = [100, 200, 400, 800, 1000]
 
 with open(config_file) as f:
