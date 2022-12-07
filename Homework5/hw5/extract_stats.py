@@ -79,9 +79,32 @@ def get_stats(dfs):
     data_to_complete = get_null_values(dfs, data_to_complete)
     data_to_complete = get_null_values_for_column(dfs, data_to_complete)
     data_to_complete = get_null_values_for_row(dfs, data_to_complete)
+    for key in data_to_complete.keys():
+        data_to_complete[key].update({'nnanforcol': get_number_nans(data_to_complete[key]['nanforcol'])})
+        data_to_complete[key].update({'nnanforrow': get_number_nans(data_to_complete[key]['nanforrow'])})
     return data_to_complete
 
+def get_number_nans(df):
+    nan_to_elem = {}
+    for value in df.values():
+        if nan_to_elem.get(value):
+            nan_to_elem[value] += 1
+        else:
+            nan_to_elem.update({value: 1})
+    return nan_to_elem
+
+def save_to_csv(dic):
+    df = pd.DataFrame.from_dict(dic)
+    #save rows and columns
+    df.iloc[:2].to_csv('./csv_per_stats/stats/row_col.csv')
+    df.iloc[4].to_csv('./csv_per_stats/stats/nan.csv')
+    df.iloc[5].to_csv('./csv_per_stats/stats/nan_col.csv')
+    df.iloc[6].to_csv('./csv_per_stats/stats/nan_row.csv')
+    df.iloc[7].to_csv('./csv_per_stats/stats/nnan_col.csv')
+    df.iloc[8].to_csv('./csv_per_stats/stats/nnan_row.csv')
 #TODO: numero di valori diversi per colonna
+
+
 
 dataframes = []
 directory = './dataset'
@@ -94,5 +117,5 @@ for filename in os.listdir(directory):
         dataframes.append(df)
 
 df = get_stats(dataframes)
-pd.DataFrame.from_dict(df).to_csv('./stats.csv')
-print(df)
+save_to_csv(df)
+pd.DataFrame.from_dict(df).to_csv('./csv_per_stats/stats/all_stats.csv')
