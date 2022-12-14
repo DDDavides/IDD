@@ -73,7 +73,7 @@ def get_null_values_for_row(dfs, dataframe_to_complete):
 def get_stats(dfs):
     data_to_complete = {}
     for df in dfs:
-        data_to_complete.update({df.Name: {'numbercolumns': len(df.columns), 'numberrows': len(df.index)}})
+        data_to_complete.update({df.Name: {'numbercolumns': len(df.columns) - 1, 'numberrows': len(df.index)}})
     data_to_complete = get_uncomplete_columns(dfs, data_to_complete)
     data_to_complete = get_uncomplete_rows(dfs, data_to_complete)
     data_to_complete = get_null_values(dfs, data_to_complete)

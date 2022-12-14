@@ -40,4 +40,4 @@ for spider in performances:
     tmp = pd.DataFrame(performances[spider][x], index=[x])
     df = pd.concat([df,  tmp])
 
-  df.to_csv(f"./performances/{spider}.csv")
+  df.to_csv(f"./csv_stats/performances/{spider}.csv")
