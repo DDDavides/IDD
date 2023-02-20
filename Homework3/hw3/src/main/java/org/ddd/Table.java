@@ -6,12 +6,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.io.*;
+import java.security.Key;
 import java.util.*;
 
 @Data
 public class Table {
     private String id;
     private Map<String, Set<String>> columns2dataColumn;
+    private Map<Integer, Map<String, String>> row2CellContent;
     private String context;
     private int numRows;
     private int numColumns;
@@ -19,17 +21,20 @@ public class Table {
     public Table(String id){
         this.id = id;
         this.columns2dataColumn = new HashMap<>();
+        this.row2CellContent = new HashMap<>();
     }
 
     public Table(String id, String context){
         this.id = id;
         this.columns2dataColumn = new HashMap<>();
+        this.row2CellContent = new HashMap<>();
         this.context = context;
     }
 
     public Table(String id, String context, int numRows, int numCols){
         this.id = id;
         this.columns2dataColumn = new HashMap<>();
+        this.row2CellContent = new HashMap<>();
         this.context = context;
         this.numRows = numRows;
         this.numColumns = numCols;
@@ -37,6 +42,23 @@ public class Table {
 
     public Set<String> getDataByColumn(String columnId) {
         return columns2dataColumn.get(columnId);
+    }
+
+    public Boolean addCell(int row, String column, String value){
+        // se è già presente la riga
+        if(row2CellContent.containsKey(row)) {
+            // se non è presente la colonna aggiungo la colonna col rispettivo valore,
+            // altrimenti non faccio nulla
+            if(!row2CellContent.get(row).containsKey(column)) {
+                row2CellContent.get(row).put(column, value);
+                return true;
+            }
+        }else{
+            Map<String, String> column2value = new HashMap<>();
+            column2value.put(column, value);
+            row2CellContent.put(row, column2value);
+        }
+        return false;
     }
     public void addElemToColumn(String columnKey, String elem) {
         Set<String> dataColumn;
