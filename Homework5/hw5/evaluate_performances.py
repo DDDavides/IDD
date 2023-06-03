@@ -4,7 +4,7 @@ import time, yaml, os
 spiders = ["financial", "companiesmarketcap", "cbinsight", "teamblind"]
 config_file = "../config.yaml"
 out_path = "./csv_stats/performances"
-num_instances = [100, 200, 400, 800, 1000]
+num_instances = [100000]
 
 with open(config_file) as f:
   config = yaml.load(f, Loader=yaml.FullLoader)
@@ -19,6 +19,7 @@ for x in num_instances:
   
   for spider in spiders:
     start = time.time()
+    print("Eseguendo:", spider)
     os.system(f"scrapy crawl {spider} -s LOG_ENABLED=0")
 
     run_time = time.time() - start
