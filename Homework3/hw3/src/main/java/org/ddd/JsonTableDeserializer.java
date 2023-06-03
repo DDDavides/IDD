@@ -45,6 +45,7 @@ public class JsonTableDeserializer implements JsonDeserializer<Table> {
         String columnKey = "";              // chiave della colonna cui si riferisce una cella
         JsonObject coordinates = null;      // JsonObject relativo alle coordinate della cella nella tabella (row, column)
         int columnCell = 0;                 // numero della colonna cui si riferisce una cella
+        int rowCell = 0;                    // numero della riga cui si riferisce una cella
         boolean isHeader = false;           // definisce se la cella è un header o meno
         String cleanedText = "";            // testo contenuto in una cella
 
@@ -54,26 +55,30 @@ public class JsonTableDeserializer implements JsonDeserializer<Table> {
             joCell = jeCell.getAsJsonObject();
             coordinates = joCell.get("Coordinates").getAsJsonObject();
             columnCell = coordinates.get("column").getAsInt();
+            rowCell = coordinates.get("row").getAsInt();
             isHeader = joCell.get("isHeader").getAsBoolean();
             cleanedText = joCell.get("cleanedText").getAsString();
 
             if (columns[columnCell] == null && isHeader)
                 columns[columnCell] = cleanedText;
-
+            Map<String, String> row = new HashMap<>();
             if(!isHeader) {
                 columnKey = columns[columnCell];
                 if (columnKey != null) {
                     result.addElemToColumn(columnKey, cleanedText);
+                    result.addCell(rowCell, columnKey, cleanedText);
                 } else {
                     unmappedCells.put(cleanedText, columnCell);
                 }
             }
         }
-
+        // unmappedCells = si usa per quelle celle i cui header non sono nella prima riga
+        // e per cui non si sa il nome della cella
         for (Map.Entry<String, Integer> cell : unmappedCells.entrySet()) {
             if (columns[cell.getValue()]==null)
                 columns[cell.getValue()] = cell.getValue().toString();
             result.addElemToColumn(columns[cell.getValue()], cell.getKey());
+            result.addCell(rowCell, columns[cell.getValue()], cell.getKey());
         }
 
         return result;
